@@ -428,7 +428,282 @@ Analiza e Hendekut CBAM per Bizneset Shqiptare
                 <div class="question-title">1. Rruga e Prodhimit & Emisionet e Drejtpërdrejta (CO₂)</div>
                 <p><strong>CBAM kërkon:</strong> Cili proces prodhimi? Furra e lartë, harku elektrik, apo rrugë tjetër?</p>
                 <div class="status-grid">
-                    <div class="status-option status-have" onclick="selectStatus(this)">✅ E kemi<br><small>E dokumentuar & e matshme</small></div>
+                    <div class="status-option status-have" onclick="selectStatus(this)">✅ E kemi<br><small>Tracking i djegësve</small></div>
+                    <div class="status-option status-partial" onclick="selectStatus(this)">⚠️ Pjesërisht<br><small>Konsumi i përgjithshëm i njohur</small></div>
+                    <div class="status-option status-need" onclick="selectStatus(this)">❌ Na mungon<br><small>Nuk kemi të dhëna specifike</small></div>
+                </div>
+            </div>
+            
+            <div class="question-block">
+                <div class="question-title">3. Raporti Klinker-Çimento</div>
+                <p><strong>CBAM kërkon:</strong> Sa klinker për ton çimento të gatshëm? (Shtesa reduktojnë intensitetin e CO₂)</p>
+                <div class="status-grid">
+                    <div class="status-option status-have" onclick="selectStatus(this)">✅ E kemi<br><small>Recepturat e sakta</small></div>
+                    <div class="status-option status-partial" onclick="selectStatus(this)">⚠️ Pjesërisht<br><small>Vlerat mesatare</small></div>
+                    <div class="status-option status-need" onclick="selectStatus(this)">❌ Na mungon<br><small>Nuk kemi ndarje</small></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pleh Gap Analysis -->
+        <div id="fertilizer-analysis" class="gap-analysis">
+            <h2 style="color: #27ae60; margin-bottom: 20px;">🌱 Pleh - Kontrolli i Gatishmërisë CBAM</h2>
+            
+            <div class="question-block">
+                <div class="question-title">1. Emisionet e Azotit (N₂O & CO₂)</div>
+                <p><strong>CBAM kërkon:</strong> N₂O nga prodhimi i acidit nitrik + CO₂ nga gazi natyror/amoniaku</p>
+                <div class="status-grid">
+                    <div class="status-option status-have" onclick="selectStatus(this)">✅ E kemi<br><small>N₂O & CO₂ të matura</small></div>
+                    <div class="status-option status-partial" onclick="selectStatus(this)">⚠️ Pjesërisht<br><small>Vetëm CO₂ ose N₂O</small></div>
+                    <div class="status-option status-need" onclick="selectStatus(this)">❌ Na mungon<br><small>Nuk kemi të dhëna emisionesh</small></div>
+                </div>
+            </div>
+            
+            <div class="question-block">
+                <div class="question-title">2. Origjina e Amoniakut</div>
+                <p><strong>CBAM kërkon:</strong> CO₂ e integruar në amoniakun e importuar (nëse nuk prodhohet vetë)</p>
+                <div class="status-grid">
+                    <div class="status-option status-have" onclick="selectStatus(this)">✅ E kemi<br><small>Çertifikata CO₂ nga furnizuesit</small></div>
+                    <div class="status-option status-partial" onclick="selectStatus(this)">⚠️ Pjesërisht<br><small>Furnizuesit e njohur</small></div>
+                    <div class="status-option status-need" onclick="selectStatus(this)">❌ Na mungon<br><small>Nuk kemi tracking CO₂</small></div>
+                </div>
+            </div>
+        </div>
+        
+        <button class="generate-btn" onclick="generateResults()">📊 Gjenero Rezultatin e Analizës së Hendekut</button>
+        
+        <div id="results" class="results-section" style="display: none;">
+            <h2 style="margin-bottom: 20px;">🎯 Harta Juaj e Gatishmërisë CBAM</h2>
+            <div id="action-plan">
+                <!-- Do të gjenerohet dinamikisht -->
+            </div>
+            
+            <div style="background: rgba(255,255,255,0.2); padding: 20px; border-radius: 10px; margin-top: 20px;">
+                <h3>💡 Hapat e ardhshëm me Entrenovu Hub:</h3>
+                <p><strong>E disponueshme menjëherë:</strong> CBAM Quick-Check (500€) - Lista e detajuar e detyrave + mbështetje me template</p>
+                <p><strong>Përgatitja 2025:</strong> Programi Pilot CBAM (8.000€) - Implementim i plotë deri në 2026</p>
+                <p><strong>Avantazhi ynë:</strong> Dimë si të ndajmë emisionet tuaja - energji elektrike (e pastër) vs. procese termike (për optimizim)</p>
+                <p><strong>Kontakt:</strong> info@entrenovu.com | +355 XX XXX XXX</p>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentSector = '';
+        let responses = {};
+        
+        function showSector(sector) {
+            // Fsheh të gjitha analizat
+            const analyses = document.querySelectorAll('.gap-analysis');
+            analyses.forEach(analysis => analysis.classList.remove('active'));
+            
+            // Hiq aktive nga të gjitha butonat
+            const buttons = document.querySelectorAll('.sector-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            
+            // Trego analizën e zgjedhur
+            document.getElementById(sector + '-analysis').classList.add('active');
+            event.target.closest('.sector-btn').classList.add('active');
+            
+            currentSector = sector;
+            responses[sector] = responses[sector] || {};
+        }
+        
+        function selectStatus(element) {
+            // Hiq të zgjedhurin nga elementet e afërm
+            const siblings = element.parentNode.querySelectorAll('.status-option');
+            siblings.forEach(sibling => sibling.classList.remove('selected'));
+            
+            // Shto të zgjedhurin te elementi i klikuar
+            element.classList.add('selected');
+            
+            // Ruaj përgjigjen
+            const questionBlock = element.closest('.question-block');
+            const questionTitle = questionBlock.querySelector('.question-title').textContent;
+            const status = element.classList.contains('status-have') ? 'have' : 
+                          element.classList.contains('status-partial') ? 'partial' : 'need';
+            
+            if (!responses[currentSector]) responses[currentSector] = {};
+            responses[currentSector][questionTitle] = status;
+        }
+        
+        function generateResults() {
+            if (!currentSector) {
+                alert('Ju lutem zgjidhni një sektor fillimisht!');
+                return;
+            }
+            
+            const sectorResponses = responses[currentSector] || {};
+            const totalQuestions = Object.keys(sectorResponses).length;
+            
+            if (totalQuestions === 0) {
+                alert('Ju lutem përgjigjuni pyetjeve fillimisht!');
+                return;
+            }
+            
+            const haveCount = Object.values(sectorResponses).filter(v => v === 'have').length;
+            const partialCount = Object.values(sectorResponses).filter(v => v === 'partial').length;
+            const needCount = Object.values(sectorResponses).filter(v => v === 'need').length;
+            
+            const readinessScore = Math.round(((haveCount * 2 + partialCount) / (totalQuestions * 2)) * 100);
+            
+            let actionPlan = `
+                <h3>🎯 Rezultati i Gatishmërisë CBAM: ${readinessScore}%</h3>
+                <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                    ✅ Gati: ${haveCount} fusha | ⚠️ Pjesërisht: ${partialCount} fusha | ❌ Mungon: ${needCount} fusha
+                </div>
+            `;
+            
+            if (readinessScore >= 80) {
+                actionPlan += `
+                    <div class="action-item priority-low">
+                        <strong>🎉 Shkëlqyeshëm!</strong> Jeni mirë të përgatitur. Fokus në trajnimin e template dhe komunikimin me BE-në.
+                    </div>
+                `;
+            } else if (readinessScore >= 50) {
+                actionPlan += `
+                    <div class="action-item priority-medium">
+                        <strong>⚠️ Fillim i mirë!</strong> Mbyllni hendekun e të dhënave deri në fund të 2025. Rekomandohet programi pilot.
+                    </div>
+                `;
+            } else {
+                actionPlan += `
+                    <div class="action-item priority-high">
+                        <strong>🚨 Urgjent!</strong> Masa të menjëhershme të nevojshme. Programi Pilot CBAM i domosdoshëm për 2026.
+                    </div>
+                `;
+            }
+            
+            // Rekomandime specifike për sektorin
+            if (currentSector === 'steel') {
+                actionPlan += `
+                    <div class="action-item priority-medium">
+                        <strong>🏭 Specifike për Çelik:</strong> Dokumentoni rrugën e prodhimit, gjurmoni përqindjen e skrapit, përdorni energjinë e pastër të Shqipërisë si avantazh.
+                    </div>
+                `;
+            } else if (currentSector === 'aluminium') {
+                actionPlan += `
+                    <div class="action-item priority-medium">
+                        <strong>⚡ Specifike për Alumin:</strong> Çertifikata e hidroenergjisë si avantazh i madh konkurrues! Implementoni matjen e PFC.
+                    </div>
+                `;
+            } else if (currentSector === 'cement') {
+                actionPlan += `
+                    <div class="action-item priority-medium">
+                        <strong>🏗️ Specifike për Çimento:</strong> Ndani emisionet nga procesi vs. nga djegja, dokumentoni djegësit alternativë.
+                    </div>
+                `;
+            } else if (currentSector === 'fertilizer') {
+                actionPlan += `
+                    <div class="action-item priority-high">
+                        <strong>🌱 Specifike për Pleh:</strong> Emisionet N₂O janë kritike! Bëni zinxhirin e furnizimit të amoniakut transparent për CO₂.
+                    </div>
+                `;
+            }
+            
+            // Avantazhet specifike të Shqipërisë
+            actionPlan += `
+                <div class="action-item priority-low">
+                    <strong>🇦🇱 Avantazhi i Shqipërisë:</strong> Emeisone të ulëta të energjisë falë hidroenergjisë (0,1 kg CO₂/kWh vs. mesatarja e BE 0,4 kg CO₂/kWh)!
+                </div>
+            `;
+            
+            // Paralajmërim për proceset jo elektrike
+            actionPlan += `
+                <div class="action-item priority-high">
+                    <strong>⚠️ Kujdes:</strong> Edhe pse energjia elektrike është e pastër, proceset me gaz natyror, naftë apo qymyr duhen llogaritur veçmas dhe kanë kosto të lartë CBAM!
+                </div>
+            `;
+            
+            // Rekomandime për kohën
+            actionPlan += `
+                <div class="action-item priority-high">
+                    <strong>⏰ Afati 2025:</strong>
+                    <ul style="margin: 10px 0; padding-left: 20px;">
+                        <li>T1 2025: Filloni mbledhjen e të dhënave</li>
+                        <li>T2 2025: Testoni template-in e BE-së</li>
+                        <li>T3 2025: Komunikim me furnizuesit</li>
+                        <li>T4 2025: Provë me importuesit e BE-së</li>
+                    </ul>
+                </div>
+            `;
+            
+            // Krahasimi i kostove
+            const exportVolume = document.getElementById('export-volume').value || 1000;
+            let sectorEmissionFactor = 1.5; // Default për çelik
+            
+            if (currentSector === 'aluminium') sectorEmissionFactor = 8;
+            else if (currentSector === 'cement') sectorEmissionFactor = 0.8;
+            else if (currentSector === 'fertilizer') sectorEmissionFactor = 3;
+            
+            const preparedCost = exportVolume * sectorEmissionFactor * 120; // Me të dhëna të sakta
+            const unpreparedCost = exportVolume * sectorEmissionFactor * 120 * 1.5; // Vlera default (+50%)
+            const savings = unpreparedCost - preparedCost;
+            
+            actionPlan += `
+                <div class="action-item priority-high">
+                    <strong>💰 Analiza e Kostove për ${exportVolume} ton/vit:</strong>
+                    <ul style="line-height: 1.8; margin: 10px 0;">
+                        <li>✅ <strong>Me përgatitje:</strong> ${preparedCost.toLocaleString()}€ CBAM/vit</li>
+                        <li>❌ <strong>Pa përgatitje (vlera default):</strong> ${unpreparedCost.toLocaleString()}€ CBAM/vit</li>
+                        <li>💸 <strong>Kursim vjetor:</strong> ${savings.toLocaleString()}€!</li>
+                    </ul>
+                </div>
+            `;
+            
+            // Prognoza 10-vjeçare
+            const totalSavings10Years = savings * 8; // Mesatarisht për 10 vjet (duke llogaritur rritjen e çmimit)
+            actionPlan += `
+                <div class="action-item priority-high">
+                    <strong>📈 Prognoza 10-vjeçare (2026-2035):</strong>
+                    <p>Kursimi total i mundshëm: <strong style="color: #4ecdc4; font-size: 1.2em;">${totalSavings10Years.toLocaleString()}€</strong></p>
+                    <p><small>Duke llogaritur rritjen 5% vjetore të çmimit të CO₂ (120€ → 180€)</small></p>
+                </div>
+            `;
+            
+            document.getElementById('action-plan').innerHTML = actionPlan;
+            document.getElementById('results').style.display = 'block';
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // Funksionaliteti i ruajtjes automatike
+        function saveProgress() {
+            localStorage.setItem('cbam_gap_analysis', JSON.stringify({
+                responses: responses,
+                sector: currentSector,
+                company: {
+                    name: document.getElementById('company-name').value,
+                    product: document.getElementById('main-product').value,
+                    volume: document.getElementById('export-volume').value,
+                    buyers: document.getElementById('eu-buyers').value
+                }
+            }));
+        }
+        
+        // Ngarkimi i progresit të ruajtur
+        function loadProgress() {
+            const saved = localStorage.getItem('cbam_gap_analysis');
+            if (saved) {
+                const data = JSON.parse(saved);
+                responses = data.responses || {};
+                currentSector = data.sector || '';
+                
+                if (data.company) {
+                    document.getElementById('company-name').value = data.company.name || '';
+                    document.getElementById('main-product').value = data.company.product || '';
+                    document.getElementById('export-volume').value = data.company.volume || '';
+                    document.getElementById('eu-buyers').value = data.company.buyers || '';
+                }
+            }
+        }
+        
+        // Event listeners për ruajtjen automatike
+        document.addEventListener('change', saveProgress);
+        document.addEventListener('input', saveProgress);
+        document.addEventListener('DOMContentLoaded', loadProgress);
+    </script>
+</body>
+</html>Status(this)">✅ E kemi<br><small>E dokumentuar & e matshme</small></div>
                     <div class="status-option status-partial" onclick="selectStatus(this)">⚠️ Pjesërisht<br><small>Vlerësime të përafërta</small></div>
                     <div class="status-option status-need" onclick="selectStatus(this)">❌ Na mungon<br><small>Nuk kemi të dhëna</small></div>
                 </div>
