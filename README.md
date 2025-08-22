@@ -693,6 +693,403 @@
 
     document.addEventListener('change', saveProgress);
     document.addEventListener('input', saveProgress);
+
+    <!DOCTYPE html>
+<html lang="sq">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CBAM Gap Analiza – Entrenovu Hub</title>
+
+  <!-- Fonts & Reset -->
+  <style>
+    /* ------- Base / Reset ------- */
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height:1.6;
+      background:linear-gradient(135deg,#2c3e50 0%,#34495e 100%);
+      color:#333;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
+    a{color:inherit;text-decoration:none}
+    ul{padding-left:18px}
+
+    /* ------- Layout ------- */
+    .container{max-width:1400px;margin:0 auto;padding:20px}
+    .header{background:#fff;border-radius:15px;padding:30px;text-align:center;margin-bottom:20px;box-shadow:0 10px 30px rgba(0,0,0,.1);position:relative}
+    .header .brand{
+      display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap
+    }
+    .header img.logo{height:48px;width:auto;object-fit:contain}
+    .header h1{color:#2c3e50;font-size:2.1rem;margin:2px 0 4px}
+    .header p.sub{color:#5d6d7e}
+
+    .deadline-warning{
+      background:linear-gradient(135deg,#e74c3c,#c0392b);
+      color:#fff;padding:14px;border-radius:12px;margin:18px 0;text-align:center;font-weight:700
+    }
+
+    .financial-projection,.albania-advantage,.cost-comparison{
+      color:#fff;padding:22px;border-radius:15px;margin:16px 0
+    }
+    .financial-projection{background:linear-gradient(135deg,#8e44ad,#9b59b6)}
+    .albania-advantage{background:linear-gradient(135deg,#e74c3c,#c0392b)}
+    .cost-comparison{background:linear-gradient(135deg,#f39c12,#e67e22)}
+    .projection-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:14px 0}
+    .projection-card{background:rgba(255,255,255,.1);padding:16px;border-radius:10px;border-left:5px solid #fff}
+
+    .sector-selector{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:18px 0 8px}
+    .sector-btn{
+      background:#fff;border:3px solid #e0e0e0;border-radius:15px;padding:18px;text-align:center;cursor:pointer;transition:.25s;box-shadow:0 5px 15px rgba(0,0,0,.08)
+    }
+    .sector-btn:hover,.sector-btn.active{border-color:#3498db;background:#f8f9fa;transform:translateY(-2px)}
+    .sector-icon{font-size:1.8rem;margin-bottom:8px}
+
+    .company-info{background:#e8f4fd;padding:18px;border-radius:12px;margin:14px 0}
+    .info-row{display:grid;grid-template-columns:210px 1fr;gap:12px;margin:10px 0;align-items:center}
+    .info-label{font-weight:700;color:#2c3e50}
+    .info-input{padding:9px 12px;border:1px solid #d0d7de;border-radius:6px;font-size:14px}
+
+    .gap-analysis{background:#fff;border-radius:15px;padding:24px;margin:16px 0;box-shadow:0 10px 30px rgba(0,0,0,.08);display:none}
+    .gap-analysis.active{display:block}
+    .question-block{background:#f8f9fa;border-left:5px solid #3498db;padding:16px;margin:12px 0;border-radius:6px}
+    .question-title{font-weight:800;color:#2c3e50;margin-bottom:6px;font-size:1.05rem}
+    .status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
+    .status-option{padding:10px;border-radius:8px;text-align:center;cursor:pointer;border:2px solid transparent;transition:.2s}
+    .status-have{background:#d4edda;color:#155724}
+    .status-partial{background:#fff3cd;color:#856404}
+    .status-need{background:#f8d7da;color:#721c24}
+    .status-option:hover,.status-option.selected{border-color:#333;transform:scale(1.02)}
+
+    .kosovo-note{background:#d1ecf1;border:1px solid #bee5eb;padding:14px;border-radius:8px;margin:12px 0}
+
+    .results-section{
+      background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+      color:#fff;padding:22px;border-radius:15px;margin-top:18px
+    }
+    .action-item{background:rgba(255,255,255,.12);padding:14px;border-radius:8px;margin:10px 0;border-left:4px solid #fff}
+    .priority-high{border-left-color:#e74c3c}
+    .priority-medium{border-left-color:#f39c12}
+    .priority-low{border-left-color:#27ae60}
+
+    .generate-btn,.pdf-btn{
+      background:#27ae60;border:none;color:#fff;padding:14px 24px;border-radius:10px;font-size:1.05rem;cursor:pointer;margin:16px auto 8px;display:block;transition:.2s
+    }
+    .generate-btn:hover{background:#229954;transform:scale(1.04)}
+    .pdf-btn{background:#1f7ae0}
+    .pdf-btn:hover{background:#1966bc;transform:scale(1.03)}
+    .helper-note{color:#ecf0f1;font-size:.92rem;text-align:center;margin-top:6px}
+
+    .comparison-table{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:10px 0}
+    .comparison-card{background:rgba(255,255,255,.1);padding:12px;border-radius:8px}
+
+    /* ------- Print cover header (also used on screen) ------- */
+    .cover-header{
+      background:#fff;border-radius:14px;padding:18px;display:flex;align-items:center;gap:14px;margin-bottom:14px
+    }
+    .cover-header img{height:40px;width:auto}
+    .cover-header .title{font-weight:900;color:#2c3e50}
+    .contact{background:#ffffff;border-radius:10px;padding:12px;color:#2c3e50;margin-top:12px}
+    .contact strong{color:#1f7ae0}
+  </style>
+
+  <!-- PDF libs (self-host later if you prefer) -->
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <div class="container">
+
+    <!-- Top header with brand -->
+    <div class="header">
+      <div class="brand">
+        <img src="logo.png" alt="Entrenovu Hub" class="logo" crossOrigin="anonymous"/>
+        <div>
+          <h1>🎯 Analiza e Hendekut CBAM</h1>
+          <p class="sub">Për eksportuesit shqiptarë në BE — nga Entrenovu Hub</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="deadline-warning">⚠️ Faza e rregullt e CBAM fillon më 1 Janar 2026 — koha për përgatitje po mbaron!</div>
+
+    <div class="financial-projection">
+      <h2 style="margin-bottom:10px;">💰 Prognoza Financiare CBAM 2026–2035</h2>
+      <p><strong>Çmimi i CO₂:</strong> 120€/ton (2026) → 180€/ton (2035) — rritje 5% vjetore</p>
+      <div class="projection-grid">
+        <div class="projection-card">
+          <h4>📊 Kostot CBAM për 10 vjet</h4>
+          <ul style="margin-top:8px;line-height:1.7">
+            <li><strong>2026:</strong> 120€/ton CO₂</li>
+            <li><strong>2028:</strong> 132€/ton CO₂</li>
+            <li><strong>2030:</strong> 146€/ton CO₂</li>
+            <li><strong>2032:</strong> 161€/ton CO₂</li>
+            <li><strong>2035:</strong> 180€/ton CO₂</li>
+          </ul>
+        </div>
+        <div class="projection-card">
+          <h4>⚖️ Eksportues me të dhëna vs pa të dhëna</h4>
+          <p><strong>Me monitorim të përpiktë:</strong></p>
+          <ul style="line-height:1.55">
+            <li>Kosto reale CBAM (më e ulët)</li>
+            <li>Avantazh konkurrues</li>
+            <li>Marrëdhënie më të mira me importues</li>
+          </ul>
+          <p style="margin-top:6px"><strong>Pa të dhëna (vlera default):</strong></p>
+          <ul style="line-height:1.55">
+            <li>+30–50% kosto shtesë CBAM</li>
+            <li>Humbje konkurruese</li>
+            <li>Rrezik humbje klientësh</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="cost-comparison">
+      <h3>💸 Krahasimi i kostove: të përgatitur vs jo të përgatitur</h3>
+      <div class="comparison-table">
+        <div class="comparison-card">
+          <h4>✅ Kompani të përgatitura</h4>
+          <p><strong>Çelik:</strong> ~1.5 tCO₂/ton = 180€ CBAM/ton</p>
+          <p><strong>Alumin:</strong> ~8 tCO₂/ton = 960€ CBAM/ton</p>
+          <p><strong>Çimento:</strong> ~0.8 tCO₂/ton = 96€ CBAM/ton</p>
+        </div>
+        <div class="comparison-card">
+          <h4>❌ Kompani jo të përgatitura (default)</h4>
+          <p><strong>Çelik:</strong> ~2.2 tCO₂/ton = 264€ CBAM/ton (+47%)</p>
+          <p><strong>Alumin:</strong> ~12 tCO₂/ton = 1440€ CBAM/ton (+50%)</p>
+          <p><strong>Çimento:</strong> ~1.2 tCO₂/ton = 144€ CBAM/ton (+50%)</p>
+        </div>
+      </div>
+      <p style="text-align:center;margin-top:8px;font-size:1.05rem"><strong>📈 Për 1000 ton/vit: Dallimi mund të jetë 50.000€ – 480.000€ në kosto!</strong></p>
+    </div>
+
+    <div class="albania-advantage">
+      <h2>🇦🇱 Informacion Special për Kompanitë Shqiptare</h2>
+      <div style="background:rgba(255,255,255,.1);padding:16px;border-radius:10px;margin:12px 0">
+        <h3>⚡ Avantazhi i Energjisë së Rinovueshme</h3>
+        <p><strong>Shqipëria:</strong> ~0.1 kg CO₂/kWh (hidro)</p>
+        <p><strong>Mesatarja e BE:</strong> ~0.4 kg CO₂/kWh</p>
+        <p><strong>Avantazh konkurrues:</strong> 75% më pak emisione nga energjia elektrike!</p>
+      </div>
+      <div style="background:rgba(255,255,255,.1);padding:16px;border-radius:10px;margin:12px 0">
+        <h3>🔥 KUJDES: Jo gjithçka është e gjelbër!</h3>
+        <ul style="line-height:1.7;margin-top:6px">
+          <li>Gazi natyror, nafta/diesel, qymyri — llogariten veçmas dhe rëndojnë koston</li>
+          <li>Proceset kimike — CO₂ nga reaksionet</li>
+        </ul>
+        <p style="color:#ffeb3b;font-weight:700;margin-top:6px">⚠️ CBAM i ndan burimet e energjisë — hidro ndihmon, por termikja paguhet!</p>
+      </div>
+      <div style="background:rgba(255,255,255,.2);padding:16px;border-radius:10px;margin:12px 0">
+        <h3>🎯 Pika jonë e fortë</h3>
+        <p><strong>“Dimë si t’i ndajmë emisionet tuaja”</strong> — energji elektrike (e pastër) vs. procese termike (për optimizim).</p>
+      </div>
+    </div>
+
+    <div class="company-info">
+      <h3 style="margin-bottom:8px;color:#2c3e50">📋 Të Dhënat e Kompanisë</h3>
+      <div class="info-row">
+        <div class="info-label">Emri i firmës:</div>
+        <input id="company-name" type="text" class="info-input" placeholder="p.sh. Albanian Steel Corp"/>
+      </div>
+      <div class="info-row">
+        <div class="info-label">Produkti kryesor:</div>
+        <select id="main-product" class="info-input">
+          <option value="">Zgjidhni...</option>
+          <option value="steel">Çelik & Hekur</option>
+          <option value="aluminium">Alumin</option>
+          <option value="cement">Çimento</option>
+          <option value="fertilizer">Pleh</option>
+        </select>
+      </div>
+      <div class="info-row">
+        <div class="info-label">Eksport në BE (ton/vit):</div>
+        <input id="export-volume" type="number" class="info-input" placeholder="p.sh. 10000"/>
+      </div>
+      <div class="info-row">
+        <div class="info-label">Blerës kryesor në BE:</div>
+        <input id="eu-buyers" type="text" class="info-input" placeholder="p.sh. Gjermani, Itali"/>
+      </div>
+    </div>
+
+    <div class="kosovo-note">
+      <strong>📍 Info speciale për Kosovë:</strong> Eksportuesit e Kosovës janë më pak të prekur (~1% e BPV), por duhet të jenë të përgatitur për tregjet në rritje të BE-së.
+    </div>
+
+    <h3 style="color:#fff;text-align:center;margin:16px 0 10px">Zgjidhni sektorin tuaj për analizën e detajuar:</h3>
+
+    <div class="sector-selector">
+      <div class="sector-btn" data-sector="steel" onclick="showSector('steel', event)">
+        <div class="sector-icon">🏭</div><h4>Çelik & Hekur</h4><p>Tuba, profile, fletë</p>
+      </div>
+      <div class="sector-btn" data-sector="aluminium" onclick="showSector('aluminium', event)">
+        <div class="sector-icon">⚡</div><h4>Alumin</h4><p>Pllaka, tela, profile</p>
+      </div>
+      <div class="sector-btn" data-sector="cement" onclick="showSector('cement', event)">
+        <div class="sector-icon">🏗️</div><h4>Çimento</h4><p>Klinker, çimento e gatshme</p>
+      </div>
+      <div class="sector-btn" data-sector="fertilizer" onclick="showSector('fertilizer', event)">
+        <div class="sector-icon">🌱</div><h4>Pleh</h4><p>Bazuar në azot</p>
+      </div>
+    </div>
+
+    <!-- ============ Sector Blocks ============ -->
+
+    <!-- Steel -->
+    <div id="steel-analysis" class="gap-analysis">
+      <h2 style="color:#e74c3c;margin-bottom:10px">🏭 Çelik & Hekur — Kontrolli i Gatishmërisë CBAM</h2>
+
+      <div class="question-block">
+        <div class="question-title">1. Rruga e prodhimit & emisionet e drejtpërdrejta</div>
+        <p><strong>CBAM kërkon:</strong> Furra e lartë, hark elektrik, apo rrugë tjetër? Emisionet CO₂ të matura.</p>
+        <div class="status-grid">
+          <div class="status-option status-have"    onclick="selectStatus(this)">✅ E kemi<br><small>Tracking i djegësve</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">⚠️ Pjesërisht<br><small>Konsumi i përgjithshëm</small></div>
+          <div class="status-option status-need"    onclick="selectStatus(this)">❌ Na mungon<br><small>S’ka të dhëna specifike</small></div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">2. Konsumi i energjisë elektrike & emisionet e tërthorta</div>
+        <p><strong>CBAM kërkon:</strong> kWh/ton çelik + intensiteti CO₂ i energjisë (Shqipëria ~0.1 kg CO₂/kWh).</p>
+        <div class="status-grid">
+          <div class="status-option status-have"    onclick="selectStatus(this)">✅ E kemi<br><small>Fatura & matjet</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">⚠️ Pjesërisht<br><small>Vetëm totalet</small></div>
+          <div class="status-option status-need"    onclick="selectStatus(this)">❌ Na mungon<br><small>Të dhëna specifike</small></div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">3. Lëndë të para hyrëse & origjina</div>
+        <p><strong>CBAM kërkon:</strong> Xeheror/qymyr/skrap & CO₂ e integruar (dokumente furnizuesish).</p>
+        <div class="status-grid">
+          <div class="status-option status-have"    onclick="selectStatus(this)">✅ E kemi<br><small>Çertifikata CO₂</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">⚠️ Pjesërisht<br><small>Dimë origjinën</small></div>
+          <div class="status-option status-need"    onclick="selectStatus(this)">❌ Na mungon<br><small>S’ka CO₂ input</small></div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">4. Komunikimi me BE & template</div>
+        <p><strong>CBAM kërkon:</strong> Gatishmëri për të plotësuar template-in Excel & dërgim te importuesit.</p>
+        <div class="status-grid">
+          <div class="status-option status-have"    onclick="selectStatus(this)">✅ E kemi<br><small>Template i njohur</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">⚠️ Pjesërisht<br><small>Vetëm njohuri</small></div>
+          <div class="status-option status-need"    onclick="selectStatus(this)">❌ Na mungon<br><small>S’e kemi përdorur</small></div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">5. Çmimi i karbonit në Shqipëri</div>
+        <p><strong>Avantazh CBAM:</strong> Çmime CO₂ të paguara lokalisht mund të zbriten.</p>
+        <div class="status-grid">
+          <div class="status-option status-have"    onclick="selectStatus(this)">✅ Paguajmë<br><small>E dokumentuar</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">⚠️ Pjesërisht<br><small>Të tjera taksa</small></div>
+          <div class="status-option status-need"    onclick="selectStatus(this)">❌ Jo<br><small>CBAM i plotë</small></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Aluminium -->
+    <div id="aluminium-analysis" class="gap-analysis">
+      <h2 style="color:#9b59b6;margin-bottom:10px">⚡ Alumin — Kontrolli i Gatishmërisë CBAM</h2>
+
+      <div class="question-block">
+        <div class="question-title">1. Rruga e prodhimit (primar vs riciklim)</div>
+        <p><strong>CBAM kërkon:</strong> Elektrolizë (primar) vs riciklim — profile emetimi të ndryshme.</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✅ E kemi<br><small>Rruga e qartë</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">⚠️ Pjesërisht<br><small>I përzier</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">❌ Na mungon<br><small>S’ka ndarje</small></div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">2. Intensiteti i energjisë (kritike!)</div>
+        <p><strong>CBAM kërkon:</strong> kWh/kg + burimi (hidro i çertifikuar = avantazh).</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✅ E kemi<br><small>Hidro e çertifikuar</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">⚠️ Pjesërisht<br><small>Total kWh i njohur</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">❌ Na mungon<br><small>Nuk matet</small></div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">3. Emisionet PFC (CF₄, C₂F₆)</div>
+        <p><strong>CBAM kërkon:</strong> Vetëm për primarin — PFC të matura apo të vlerësuara.</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✅ E kemi<br><small>PFC të monitoruara</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">⚠️ Pjesërisht<br><small>Vlerësime</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">❌ Na mungon<br><small>S’ka PFC</small></div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">4. Origjina e alumines</div>
+        <p><strong>CBAM kërkon:</strong> CO₂ e integruar për aluminën e importuar.</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✅ E kemi<br><small>Të dhëna CO₂ furnizues</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">⚠️ Pjesërisht<br><small>Vetëm origjina</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">❌ Na mungon<br><small>S’ka CO₂</small></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cement -->
+    <div id="cement-analysis" class="gap-analysis">
+      <h2 style="color:#95a5a6;margin-bottom:10px">🏗️ Çimento — Kontrolli i Gatishmërisë CBAM</h2>
+
+      <div class="question-block">
+        <div class="question-title">1. Emisionet nga procesi (CaCO₃ → klinker)</div>
+        <p><strong>CBAM kërkon:</strong> CO₂ nga dekarbonizimi i gëlqerorit (~60% e totalit).</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✅ E kemi<br><small>Kalkulim i klinkerit</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">⚠️ Pjesërisht<br><small>Vlerësime</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">❌ Na mungon<br><small>S’ka të dhëna procesi</small></div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">2. Emisionet nga djegja</div>
+        <p><strong>CBAM kërkon:</strong> CO₂ nga qymyr/gaz/alternativë për ton klinker.</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✅ E kemi<br><small>Karburant & matje</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">⚠️ Pjesërisht<br><small>Totalet</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">❌ Na mungon<br><small>Të dhëna mungojnë</small></div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">3. Raporti klinker/çimento</div>
+        <p><strong>CBAM kërkon:</strong> Klinker për ton çimento — shtesat ulin CO₂.</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✅ E kemi<br><small>Receta të sakta</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">⚠️ Pjesërisht<br><small>Mesatare</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">❌ Na mungon<br><small>S’ka ndarje</small></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fertilizer -->
+    <div id="fertilizer-analysis" class="gap-analysis">
+      <h2 style="color:#27ae60;margin-bottom:10px">🌱 Pleh — Kontrolli i Gatishmërisë CBAM</h2>
+
+      <div class="question-block">
+        <div class="question-title">1. Emisionet e azotit (N₂O & CO₂)</div>
+        <p><strong>CBAM kërkon:</strong> N₂O nga acidi nitrik + CO₂ nga gazi/amoniaku.</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✅ E kemi<br><small>N₂O & CO₂ të matura</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">⚠️ Pjesërisht<br><small>Vetëm njëra</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">❌ Na mungon<br><small>S’ka të dhëna</small></div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">2. Origjina e amoniakut</div>
+        <p><strong>CBAM kërkon:</strong
   </script>
 </body>
 </html>
