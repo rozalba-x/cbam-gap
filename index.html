@@ -717,17 +717,30 @@
     document.addEventListener('change', saveProgress);
     document.addEventListener('input', saveProgress);
 
-    // --- CORS-free form submission ---
+    // --- CORS-free form submission with main page feedback ---
     function sendSubmissionToSheet(payload) {
-      const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8ItuDwntUqvThdhZ2w3sKenD3Mx-j6rSP0heWEHYIU9UBJKi4vrb8mD23mkopL_JVpg/exec';
+      const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw_06lLe7ZLSEJaKQggKKu3EmbpV0FjgjkmpMGlgeycitmgnDttWgiI6Lk1KYs1LtQBcQ/exec';
       
       try {
+        // Show loading message
+        showSubmissionStatus('loading', 'Duke ruajtur të dhënat...');
+        
         // Create a hidden form
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = SCRIPT_URL;
-        form.target = '_blank'; // Optional: open in new tab so user doesn't lose their place
+        form.target = 'cbam_submit_frame'; // Submit to hidden iframe
         form.style.display = 'none';
+        
+        // Create hidden iframe for submission
+        let iframe = document.getElementById('cbam_submit_frame');
+        if (!iframe) {
+          iframe = document.createElement('iframe');
+          iframe.name = 'cbam_submit_frame';
+          iframe.id = 'cbam_submit_frame';
+          iframe.style.display = 'none';
+          document.body.appendChild(iframe);
+        }
         
         // Add form fields
         const fields = {
@@ -756,13 +769,78 @@
         document.body.appendChild(form);
         form.submit();
         
-        // Clean up
+        // Clean up form after submission
         setTimeout(() => {
-          document.body.removeChild(form);
+          if (document.body.contains(form)) {
+            document.body.removeChild(form);
+          }
         }, 1000);
+        
+        // Show success message after a delay
+        setTimeout(() => {
+          showSubmissionStatus('success', 'Të dhënat u ruajtën me sukses! ✅');
+        }, 3000);
         
       } catch (e) {
         console.warn('Submission send failed', e);
+        showSubmissionStatus('error', 'Gabim në ruajtje. Ju lutem provoni përsëri.');
+      }
+    }
+
+    // Function to show submission status on main page
+    function showSubmissionStatus(type, message) {
+      // Remove any existing status
+      const existing = document.getElementById('submission-status');
+      if (existing) existing.remove();
+      
+      // Create status element
+      const status = document.createElement('div');
+      status.id = 'submission-status';
+      status.style.cssText = `
+        position: fixed; top: 20px; right: 20px; z-index: 10000;
+        padding: 15px 25px; border-radius: 10px; color: white; font-weight: bold;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2); max-width: 300px;
+        transform: translateX(100%); transition: transform 0.3s ease;
+      `;
+      
+      // Set colors based on type
+      if (type === 'loading') {
+        status.style.background = 'linear-gradient(135deg, #3498db, #2980b9)';
+        status.innerHTML = `
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:20px; height:20px; border:2px solid white; border-top:2px solid transparent; border-radius:50%; animation:spin 1s linear infinite;"></div>
+            ${message}
+          </div>
+        `;
+        // Add spin animation
+        const style = document.createElement('style');
+        style.textContent = '@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
+        document.head.appendChild(style);
+      } else if (type === 'success') {
+        status.style.background = 'linear-gradient(135deg, #27ae60, #229954)';
+        status.textContent = message;
+      } else if (type === 'error') {
+        status.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
+        status.textContent = message;
+      }
+      
+      document.body.appendChild(status);
+      
+      // Animate in
+      setTimeout(() => {
+        status.style.transform = 'translateX(0)';
+      }, 100);
+      
+      // Auto-hide after delay (except loading)
+      if (type !== 'loading') {
+        setTimeout(() => {
+          status.style.transform = 'translateX(100%)';
+          setTimeout(() => {
+            if (document.body.contains(status)) {
+              document.body.removeChild(status);
+            }
+          }, 300);
+        }, 4000);
       }
     }
   </script>
