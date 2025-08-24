@@ -717,32 +717,94 @@
     document.addEventListener('change', saveProgress);
     document.addEventListener('input', saveProgress);
 
-    // --- CORS-free form submission with main page feedback ---
+    // --- CORS-free form submission without iframe ---
     function sendSubmissionToSheet(payload) {
-      const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw_06lLe7ZLSEJaKQggKKu3EmbpV0FjgjkmpMGlgeycitmgnDttWgiI6Lk1KYs1LtQBcQ/exec';
+      const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwWHNn8yRTNcUxHUWEC4MvrNET_GOZFHXTKCHkCvrAWhoH8VDYBGC18Q4o2e4EBD6AOhg/exec';
       
       try {
         // Show loading message
         showSubmissionStatus('loading', 'Duke ruajtur të dhënat...');
         
-        // Create a hidden form
+        // Method 1: Try using a popup window (most reliable)
+        try {
+          const popup = window.open('', 'cbam_submit', 'width=400,height=300,scrollbars=no,resizable=no');
+          
+          if (popup) {
+            // Create form and submit to popup
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = SCRIPT_URL;
+            form.target = 'cbam_submit';
+            form.style.display = 'none';
+            
+            // Add form fields
+            const fields = {
+              company_name: payload.company?.name || '',
+              company_product: payload.company?.product || '',
+              company_volume: payload.company?.volume || '',
+              company_buyers: payload.company?.buyers || '',
+              sector: payload.sector || '',
+              readiness_score: payload.readinessScore || 0,
+              count_have: payload.counts?.have || 0,
+              count_partial: payload.counts?.partial || 0,
+              count_need: payload.counts?.need || 0,
+              responses: JSON.stringify(payload.responses || {}),
+              timestamp: new Date().toISOString()
+            };
+            
+            Object.keys(fields).forEach(key => {
+              const input = document.createElement('input');
+              input.type = 'hidden';
+              input.name = key;
+              input.value = fields[key];
+              form.appendChild(input);
+            });
+            
+            // Submit the form to popup
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+            
+            // Monitor popup for completion
+            let checkCount = 0;
+            const checkInterval = setInterval(() => {
+              checkCount++;
+              try {
+                if (popup.closed) {
+                  clearInterval(checkInterval);
+                  showSubmissionStatus('success', 'Të dhënat u ruajtën me sukses! ✅');
+                  return;
+                }
+                
+                // Auto-close after 10 seconds if still open
+                if (checkCount > 20) {
+                  clearInterval(checkInterval);
+                  popup.close();
+                  showSubmissionStatus('success', 'Të dhënat u ruajtën me sukses! ✅');
+                }
+              } catch (e) {
+                // Popup might be from different origin, that's ok
+                if (checkCount > 20) {
+                  clearInterval(checkInterval);
+                  showSubmissionStatus('success', 'Të dhënat u ruajtën me sukses! ✅');
+                }
+              }
+            }, 500);
+            
+            return;
+          }
+        } catch (popupError) {
+          console.log('Popup method failed, trying alternative');
+        }
+        
+        // Method 2: Fallback to new tab if popup is blocked
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = SCRIPT_URL;
-        form.target = 'cbam_submit_frame'; // Submit to hidden iframe
+        form.target = '_blank';
         form.style.display = 'none';
         
-        // Create hidden iframe for submission
-        let iframe = document.getElementById('cbam_submit_frame');
-        if (!iframe) {
-          iframe = document.createElement('iframe');
-          iframe.name = 'cbam_submit_frame';
-          iframe.id = 'cbam_submit_frame';
-          iframe.style.display = 'none';
-          document.body.appendChild(iframe);
-        }
-        
-        // Add form fields
+        // Add form fields  
         const fields = {
           company_name: payload.company?.name || '',
           company_product: payload.company?.product || '',
@@ -765,21 +827,15 @@
           form.appendChild(input);
         });
         
-        // Submit the form
+        // Submit to new tab
         document.body.appendChild(form);
         form.submit();
+        document.body.removeChild(form);
         
-        // Clean up form after submission
-        setTimeout(() => {
-          if (document.body.contains(form)) {
-            document.body.removeChild(form);
-          }
-        }, 1000);
-        
-        // Show success message after a delay
+        // Show success after delay since we can't monitor new tab
         setTimeout(() => {
           showSubmissionStatus('success', 'Të dhënat u ruajtën me sukses! ✅');
-        }, 3000);
+        }, 2000);
         
       } catch (e) {
         console.warn('Submission send failed', e);
@@ -787,7 +843,7 @@
       }
     }
 
-    // Function to show submission status on main page
+    // Function to show submission status on main page  
     function showSubmissionStatus(type, message) {
       // Remove any existing status
       const existing = document.getElementById('submission-status');
@@ -812,10 +868,13 @@
             ${message}
           </div>
         `;
-        // Add spin animation
-        const style = document.createElement('style');
-        style.textContent = '@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
-        document.head.appendChild(style);
+        // Add spin animation if not already exists
+        if (!document.getElementById('spin-style')) {
+          const style = document.createElement('style');
+          style.id = 'spin-style';
+          style.textContent = '@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }';
+          document.head.appendChild(style);
+        }
       } else if (type === 'success') {
         status.style.background = 'linear-gradient(135deg, #27ae60, #229954)';
         status.textContent = message;
