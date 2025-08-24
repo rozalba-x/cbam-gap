@@ -540,6 +540,26 @@
         preparedCost, unpreparedCost, savings, totalSavings10Years
       };
       saveProgress();
+      // At the bottom of generateResults() AFTER rendering results:
+      const company = {
+        name: document.getElementById('company-name').value || '',
+        product: document.getElementById('main-product').value || '',
+        volume: document.getElementById('export-volume').value || '',
+        buyers: document.getElementById('eu-buyers').value || ''
+      };
+      
+      const counts = { have: haveCount, partial: partialCount, need: needCount };
+      
+      const submission = {
+        company,
+        sector: currentSector,
+        readinessScore,
+        counts,
+        responses: responses[currentSector] || {}
+      };
+      
+      sendSubmissionToSheet(submission);
+
     }
 
     function getSelectedStatusesForPDF(sectorKey){
@@ -697,6 +717,24 @@
     // Auto-save on input changes
     document.addEventListener('change', saveProgress);
     document.addEventListener('input', saveProgress);
+
+    // --- Add this helper once, near your other functions ---
+  async function sendSubmissionToSheet(payload) {
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyQ7DAjMlg5QrYKuegiC82pKWG5gTDHvALmTJrkDxvCGdj32CLndftmNZNd5jxvy6rhMA/exec'; // no secrets 
+    try {
+      const res = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(payload)
+      });
+      // You can ignore response; Apps Script returns JSON.
+    } catch (e) {
+      // Silent fail — don’t block UX
+      console.warn('Submission send failed', e);
+    }
+  }
+  
+      
   </script>
 </body>
 </html>
