@@ -216,7 +216,7 @@
     </div>
 
     <div class="kosovo-note">
-      <strong>📍 Info speciale për Kosovë:</strong> Eksportuesit e Kosovës janë më pak të prekur (~1% e BPV), por duhet të jenë të përgatitur për tregjet në rritje të BE-së.
+      <strong>🔍 Info speciale për Kosovë:</strong> Eksportuesit e Kosovës janë më pak të prekur (~1% e BPV), por duhet të jenë të përgatitur për tregjet në rritje të BE-së.
     </div>
 
     <h3 style="color:white; text-align:center; margin:20px 0;">Zgjidhni sektorin tuaj për analizën e detajuar:</h3>
@@ -233,7 +233,7 @@
         <p>Pllaka, tela, profile</p>
       </div>
       <div class="sector-btn" data-sector="cement" onclick="showSector('cement', event)">
-        <div class="sector-icon">🏗️</div>
+        <div class="sector-icon">🗗️</div>
         <h4>Çimento</h4>
         <p>Klinker, çimento i gatshëm</p>
       </div>
@@ -346,7 +346,7 @@
 
     <!-- CEMENT -->
     <div id="cement-analysis" class="gap-analysis">
-      <h2 style="color:#95a5a6; margin-bottom:20px;">🏗️ Çimento - Kontrolli i Gatishmërisë CBAM</h2>
+      <h2 style="color:#95a5a6; margin-bottom:20px;">🗗️ Çimento - Kontrolli i Gatishmërisë CBAM</h2>
 
       <div class="question-block">
         <div class="question-title">1. Emisionet e Procesit (Gëlqerori → Klinker)</div>
@@ -487,7 +487,7 @@
       if (readinessScore >= 80){
         actionPlan += `<div class="action-item priority-low"><strong>🎉 Shkëlqyeshëm!</strong> Fokus në trajnimin e template dhe komunikimin me BE-në.</div>`;
       } else if (readinessScore >= 50){
-        actionPlan += `<div class="action-item priority-medium"><strong>⚠️ Fillim i mirë!</strong> Mbyllni hendekun e të dhënave deri në fund të 2025. Rekomandohet testim i template-it.</div>`;
+        actionPlan += `<div class="action-item priority-medium"><strong>⚠️ Fillim i mirë!</strong> Mbyllni hendekun e të dhëname deri në fund të 2025. Rekomandohet testim i template-it.</div>`;
       } else {
         actionPlan += `<div class="action-item priority-high"><strong>🚨 Urgjent!</strong> Masa të menjëhershme për mbledhje të dhënash dhe strukturë MRV deri në 2025.</div>`;
       }
@@ -497,7 +497,7 @@
       } else if (currentSector==='aluminium'){
         actionPlan += `<div class="action-item priority-medium"><strong>⚡ Alumin:</strong> Çertifikoni burimin hidro, implementoni matjen e PFC.</div>`;
       } else if (currentSector==='cement'){
-        actionPlan += `<div class="action-item priority-medium"><strong>🏗️ Çimento:</strong> Ndarje proces vs djegje; dokumentoni djegësit alternativë.</div>`;
+        actionPlan += `<div class="action-item priority-medium"><strong>🗗️ Çimento:</strong> Ndarje proces vs djegje; dokumentoni djegësit alternativë.</div>`;
       } else if (currentSector==='fertilizer'){
         actionPlan += `<div class="action-item priority-high"><strong>🌱 Pleh:</strong> N₂O kritike; zinxhiri i amoniakut transparent për CO₂.</div>`;
       }
@@ -540,7 +540,7 @@
         preparedCost, unpreparedCost, savings, totalSavings10Years
       };
       saveProgress();
-      // At the bottom of generateResults() AFTER rendering results:
+      
       const company = {
         name: document.getElementById('company-name').value || '',
         product: document.getElementById('main-product').value || '',
@@ -559,7 +559,6 @@
       };
       
       sendSubmissionToSheet(submission);
-
     }
 
     function getSelectedStatusesForPDF(sectorKey){
@@ -718,23 +717,54 @@
     document.addEventListener('change', saveProgress);
     document.addEventListener('input', saveProgress);
 
-    // --- Add this helper once, near your other functions ---
-  async function sendSubmissionToSheet(payload) {
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby0Y1mvWtfCwkwo9V4bgvENwtgA2Mt1eunFfEL8mWI6O8A7B36tanlok2OEKdp2sOhtGw/exec'; // no secrets 
-    try {
-      const res = await fetch(SCRIPT_URL, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(payload)
-      });
-      // You can ignore response; Apps Script returns JSON.
-    } catch (e) {
-      // Silent fail — don’t block UX
-      console.warn('Submission send failed', e);
-    }
-  }
-  
+    // --- CORS-free form submission ---
+    function sendSubmissionToSheet(payload) {
+      const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8ItuDwntUqvThdhZ2w3sKenD3Mx-j6rSP0heWEHYIU9UBJKi4vrb8mD23mkopL_JVpg/exec';
       
+      try {
+        // Create a hidden form
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = SCRIPT_URL;
+        form.target = '_blank'; // Optional: open in new tab so user doesn't lose their place
+        form.style.display = 'none';
+        
+        // Add form fields
+        const fields = {
+          company_name: payload.company?.name || '',
+          company_product: payload.company?.product || '',
+          company_volume: payload.company?.volume || '',
+          company_buyers: payload.company?.buyers || '',
+          sector: payload.sector || '',
+          readiness_score: payload.readinessScore || 0,
+          count_have: payload.counts?.have || 0,
+          count_partial: payload.counts?.partial || 0,
+          count_need: payload.counts?.need || 0,
+          responses: JSON.stringify(payload.responses || {}),
+          timestamp: new Date().toISOString()
+        };
+        
+        Object.keys(fields).forEach(key => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = fields[key];
+          form.appendChild(input);
+        });
+        
+        // Submit the form
+        document.body.appendChild(form);
+        form.submit();
+        
+        // Clean up
+        setTimeout(() => {
+          document.body.removeChild(form);
+        }, 1000);
+        
+      } catch (e) {
+        console.warn('Submission send failed', e);
+      }
+    }
   </script>
 </body>
 </html>
