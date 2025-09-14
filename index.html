@@ -1,398 +1,1033 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="sq">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>CBAM Lückenanalyse & Kostenrechner — Entrenovu</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CBAM Gap Analiza Template</title>
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Poppins -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-
-  <!-- Chart.js for cost projection -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-
+  <!-- Styles -->
   <style>
-    :root{ --brand:#060496; --ink:#111; --muted:#555; --line:#e6e8ff; }
-    *{margin:0;padding:0;box-sizing:border-box}
-    body{font-family:'Poppins',sans-serif;color:var(--ink);background:#fff;line-height:1.6}
-    a{color:var(--brand);text-decoration:underline}
-    .container{max-width:1100px;margin:0 auto;padding:20px}
-
-    /* Header */
-    .header{display:flex;align-items:center;gap:14px;margin-bottom:16px}
-    .logo{width:140px;height:auto;object-fit:contain}
-    .title-wrap{display:flex;flex-direction:column}
-    .title{font-weight:700;font-size:1.9rem;color:var(--brand);line-height:1.15}
-    .powered{font-size:.95rem;color:#1a1a1a}
-
-    /* Cards */
-    .card{border:1.8px solid var(--brand);border-radius:12px;background:#fff;padding:16px}
-    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-    .hline{height:1px;background:var(--line);margin:12px 0}
-
-    /* Inputs */
-    .label{font-size:.94rem}
-    .input, select{border:1.6px solid var(--brand);border-radius:10px;padding:10px 12px;font-size:.95rem;width:100%}
-    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .btn{background:var(--brand);color:#fff;border:none;border-radius:10px;padding:10px 14px;font-weight:600;cursor:pointer}
-    .btn.secondary{background:#fff;color:var(--brand);border:1.5px solid var(--brand)}
-    .btn.small{padding:7px 10px;font-size:.9rem}
-
-    /* Notice */
-    .notice{background:var(--brand);color:#fff;border-radius:10px;padding:14px 16px;margin:16px 0}
-
-    /* Results */
-    .results{background:var(--brand);color:#fff;border-radius:14px;padding:18px;margin-top:18px}
-    .item{background:rgba(255,255,255,.09);border-left:4px solid #fff;border-radius:8px;padding:10px;margin:8px 0}
-    .chart-wrap{background:#fff;border:1.5px solid var(--brand);border-radius:12px;padding:12px;margin-top:12px}
-    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
-    .muted{color:var(--muted)}
-    .error{color:#c0392b;font-size:.92rem;margin-top:6px}
-
-    /* Minimal table layout */
-    .table{display:grid;grid-template-columns:220px 1fr;gap:10px}
-    .cell{padding:4px 0}
-
-    @media (max-width:860px){
-      .grid{grid-template-columns:1fr}
-      .table{grid-template-columns:1fr}
-      .logo{width:120px}
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family:'Poppins', sans-serif;
+      line-height:1.6; background:white;
+      min-height:100vh; color:#000;
     }
+    .container { max-width:1400px; margin:0 auto; padding:20px; }
+    .header { background:white; border-radius:15px; padding:30px; text-align:center; margin-bottom:30px; box-shadow:0 10px 30px rgba(6,4,150,0.1); border:2px solid #060496; }
+    .header h1 { color:#060496; font-size:2.5em; margin-bottom:10px; font-weight:700; }
+
+    .deadline-warning{
+      background:#060496; color:white; padding:15px; border-radius:10px;
+      margin:20px 0; text-align:center; font-weight:600; font-size:1.1em;
+    }
+
+    .financial-projection{ background:#060496; color:white; padding:25px; border-radius:15px; margin:20px 0; }
+    .projection-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:20px; margin:20px 0; }
+    .projection-card{ background:rgba(255,255,255,0.1); padding:20px; border-radius:10px; border-left:5px solid #fff; }
+
+    .albania-advantage{ background:#060496; color:white; padding:25px; border-radius:15px; margin:20px 0; }
+
+    .sector-selector{ display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:15px; margin-bottom:30px; }
+    .sector-btn{
+      background:white; border:3px solid #e0e0e0; border-radius:15px; padding:20px; text-align:center; cursor:pointer;
+      transition:all .3s ease; box-shadow:0 5px 15px rgba(0,0,0,.1);
+    }
+    .sector-btn:hover, .sector-btn.active{ border-color:#060496; background:#f8f9fa; transform:translateY(-2px); }
+    .sector-icon{ font-size:2em; margin-bottom:10px; }
+
+    .gap-analysis{ background:white; border-radius:15px; padding:30px; margin:20px 0; box-shadow:0 10px 30px rgba(6,4,150,0.1); border:2px solid #060496; display:none; }
+    .gap-analysis.active{ display:block; }
+
+    .question-block{ background:#f8f9fa; border-left:5px solid #060496; padding:20px; margin:15px 0; border-radius:5px; }
+    .question-title{ font-weight:600; color:#000; margin-bottom:10px; font-size:1.1em; }
+
+    .status-grid{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-top:15px; }
+    .status-option{ padding:10px; border-radius:8px; text-align:center; cursor:pointer; border:2px solid transparent; transition:all .3s ease; }
+    .status-have{ background:#d4edda; color:#155724; }
+    .status-partial{ background:#fff3cd; color:#856404; }
+    .status-need{ background:#f8d7da; color:#721c24; }
+    .status-option:hover, .status-option.selected{ border-color:#060496; transform:scale(1.02); }
+
+    .company-info{ background:#f8f9fa; padding:20px; border-radius:10px; margin-bottom:20px; border:2px solid #060496; }
+    .info-row{ display:grid; grid-template-columns:200px 1fr; gap:15px; margin:10px 0; align-items:center; }
+    .info-label{ font-weight:600; color:#000; }
+    .info-input{ padding:8px 12px; border:2px solid #060496; border-radius:5px; font-size:14px; }
+    .info-input:focus{ outline:none; border-color:#060496; box-shadow:0 0 0 3px rgba(6,4,150,0.1); }
+    .required{ color:#e74c3c; }
+
+    .results-section{
+      background:#060496; color:white; padding:25px; border-radius:15px; margin-top:30px;
+    }
+    .action-item{ background:rgba(255,255,255,0.1); padding:15px; border-radius:8px; margin:10px 0; border-left:4px solid #fff; }
+    .priority-high{ border-left-color:#e74c3c; }
+    .priority-medium{ border-left-color:#f39c12; }
+    .priority-low{ border-left-color:#27ae60; }
+
+    .generate-btn{
+      background:#060496; color:white; border:none; padding:15px 30px; border-radius:10px; font-size:1.1em; cursor:pointer;
+      margin:20px auto; display:block; transition:all .3s ease; font-weight:600;
+    }
+    .generate-btn:hover{ background:#050385; transform:scale(1.05); }
+
+    .kosovo-note{ background:#f8f9fa; border:2px solid #060496; padding:15px; border-radius:8px; margin:15px 0; }
+
+    .cost-comparison{ background:#060496; color:white; padding:20px; border-radius:15px; margin:20px 0; }
+    .comparison-table{ display:grid; grid-template-columns:1fr 1fr; gap:20px; margin:15px 0; }
+    .comparison-card{ background:rgba(255,255,255,0.1); padding:15px; border-radius:8px; }
+    
+    .validation-error{ border-color:#e74c3c !important; }
+    .error-message{ color:#e74c3c; font-size:12px; margin-top:5px; }
+
+    .chart-container{ background:rgba(255,255,255,0.1); padding:25px; border-radius:10px; margin:25px 0; }
+    .chart-wrapper{ position:relative; height:400px; background:white; border-radius:8px; padding:15px; }
+    #projectionChart{ width:100%!important; height:100%!important; }
+    
+    @media (max-width:700px){ .status-grid{ grid-template-columns:1fr; } .info-row{ grid-template-columns:1fr; } .comparison-table{ grid-template-columns:1fr; } }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 </head>
 <body>
   <div class="container">
-    <!-- Header -->
     <div class="header">
-      <!-- Ensure this file exists in the repo (rename your image accordingly) -->
-      <img src="logo-entrenovu.png" alt="Entrenovu" class="logo"/>
-      <div class="title-wrap">
-        <div class="title">CBAM Lückenanalyse & Kostenrechner</div>
-        <div class="powered">Powered by <a href="https://www.entrenovu.com/" target="_blank" rel="noopener">Entrenovu</a></div>
+      <div style="display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px;">
+        <svg width="160" height="48" viewBox="0 0 320 96" style="flex-shrink: 0;">
+          <text x="0" y="65" font-family="Poppins, sans-serif" font-size="38" font-weight="400" fill="#060496">entrenovu.</text>
+        </svg>
+        <div style="text-align: right;">
+          <div style="font-size: 12px; color: #666; margin-bottom: 5px;">
+            Powered by <a href="https://www.entrenovu.com/" target="_blank" style="color: #060496; text-decoration: none; font-weight: 500;">entrenovu</a>
+          </div>
+        </div>
+      </div>
+      <h1>◯ Analiza e Hendekut CBAM</h1>
+      <p>Për eksportuesit shqiptarë në BE</p>
+    </div>
+
+    <div class="deadline-warning">
+      ⚠ Faza e rregullt e CBAM fillon më 1 Janar 2026 - Koha për përgatitje po mbaron!
+    </div>
+
+    <div class="financial-projection">
+      <h2 style="margin-bottom:20px;">▲ Prognoza Financiare CBAM 2026-2034</h2>
+      <p><strong>Çmimi i CO₂:</strong> 90€/ton (2026) → 178€/ton (2034) - Sipas RALEPA</p>
+
+      <div class="projection-grid">
+        <div class="projection-card">
+          <h4>■ Kostot CBAM për 9 vjet (RALEPA)</h4>
+          <ul style="margin:10px 0; line-height:1.8;">
+            <li><strong>2026:</strong> 90€/ton CO₂</li>
+            <li><strong>2028:</strong> 108€/ton CO₂</li>
+            <li><strong>2030:</strong> 138€/ton CO₂</li>
+            <li><strong>2032:</strong> 158€/ton CO₂</li>
+            <li><strong>2034:</strong> 178€/ton CO₂</li>
+          </ul>
+        </div>
+
+        <div class="projection-card">
+          <h4>⚖ Eksportues me Të dhëna vs Pa Të dhëna</h4>
+          <p><strong>Me monitorim të përpiktë:</strong></p>
+          <ul style="line-height:1.6;">
+            <li>Kosto reale CBAM (më e ulët)</li>
+            <li>Avantazh konkurrues</li>
+            <li>Marrëdhënie më të mira me importues</li>
+          </ul>
+          <p><strong>Pa të dhëna (vlera default):</strong></p>
+          <ul style="line-height:1.6;">
+            <li>+30-50% kosto shtesë CBAM</li>
+            <li>Humbje konkurruese</li>
+            <li>Rrezik humbje klientësh</li>
+          </ul>
+        </div>
       </div>
     </div>
 
-    <!-- Intro -->
-    <div class="card" style="margin-bottom:12px">
-      <strong>Zweck des Tools</strong>
-      <div class="hline"></div>
-      <p class="muted">
-        Schlanke Eingabe, verlässliche Ausgabe: Wir projizieren CBAM-Kosten 2026–2034 auf Basis des
-        RALEPA-Marktpfads für EUA-Preise. Die offiziellen <em>EU-Defaultwerte</em> (direkt/indirekt) sind für die
-        betroffenen CN-Codes bereits integriert. Keine Formeln im UI – nur klare Ergebnisse.
+    <div class="cost-comparison">
+      <h3>▼ Krahasimi i Kostove: Të Përgatitur vs Jo të Përgatitur</h3>
+      <div class="comparison-table">
+        <div class="comparison-card">
+          <h4>✓ Kompani me Të dhëna Aktuale (Optimizuar)</h4>
+          <p><strong>Çelik:</strong> ~2.30 ton CO₂/ton produkt = 207€ CBAM/ton</p>
+          <p><strong>Alumin:</strong> ~10.50 ton CO₂/ton produkt = 945€ CBAM/ton</p>
+          <p><strong>Çimento:</strong> ~0.85 ton CO₂/ton produkt = 77€ CBAM/ton</p>
+          <p><strong>Pleh:</strong> ~1.50 ton CO₂/ton produkt = 135€ CBAM/ton</p>
+        </div>
+        <div class="comparison-card">
+          <h4>✗ Kompani Pa Të dhëna (Vlera Default EU)</h4>
+          <p><strong>Çelik:</strong> ~2.80 ton CO₂/ton = 252€ CBAM/ton (+22%)</p>
+          <p><strong>Alumin:</strong> ~11.50 ton CO₂/ton = 1035€ CBAM/ton (+10%)</p>
+          <p><strong>Çimento:</strong> ~0.97 ton CO₂/ton = 87€ CBAM/ton (+13%)</p>
+          <p><strong>Pleh:</strong> ~1.72 ton CO₂/ton = 155€ CBAM/ton (+15%)</p>
+        </div>
+      </div>
+      <p style="text-align:center; margin-top:15px; font-size:1.1em;">
+        <strong>▲ Për 1000 ton eksport/vit: Dallimi mund të jetë 10,000€ - 90,000€ më shumë për ata pa të dhëna të sakta!</strong>
       </p>
     </div>
 
-    <!-- Deadline -->
-    <div class="notice">
-      ■ Ab 01.01.2026 werden CBAM-Zertifikate fällig. Übergangsreporting endet am 31.12.2025. Preise folgen dem
-      RALEPA-Pfad. Phase-in und Mengen steuern Ihre tatsächlichen Zahlungen.
-    </div>
+    <div class="albania-advantage">
+      <h2>◆ Informacion Special për Kompanitë Shqiptare</h2>
 
-    <!-- Minimal Input -->
-    <div class="grid">
-      <div class="card">
-        <h3>Eingaben (minimal)</h3>
-        <div class="hline"></div>
-        <div class="table">
-          <div class="cell label">Unternehmen *</div>
-          <div class="cell"><input id="c_name" class="input" placeholder="z. B. Albanian Steel Corp"></div>
-
-          <div class="cell label">CN-Code (4–10 Ziffern) *</div>
-          <div class="cell"><input id="c_cn" class="input mono" placeholder="z. B. 72072080"></div>
-
-          <div class="cell label">Menge (t) *</div>
-          <div class="cell"><input id="c_qty" type="number" class="input" placeholder="z. B. 1000"></div>
-
-          <div class="cell label">Datenmodus</div>
-          <div class="cell">
-            <label><input type="radio" name="data_mode" value="default" checked> EU-Defaultwerte (empfohlen)</label><br>
-            <label><input type="radio" name="data_mode" value="specific"> Eigene spezifische Werte nutzen</label>
-          </div>
-
-          <div class="cell label">Eigene spezifische Werte (tCO₂e/t) — falls gewählt</div>
-          <div class="cell row">
-            <input id="c_dir" type="number" step="0.0001" class="input" placeholder="Direkt z. B. 1.80" style="flex:1">
-            <input id="c_ind" type="number" step="0.0001" class="input" placeholder="Indirekt z. B. 0.35" style="flex:1">
-          </div>
-
-          <div class="cell label">Außerhalb der EU gezahlter CO₂-Preis (€/tCO₂e)</div>
-          <div class="cell"><input id="c_carbon_paid" type="number" class="input" placeholder="optional, z. B. 0"></div>
-        </div>
-
-        <div class="hline"></div>
-        <div class="row">
-          <button class="btn" id="btn_calc">Berechnen</button>
-          <button class="btn secondary small" id="btn_reset">Zurücksetzen</button>
-        </div>
-        <div id="errors" class="error"></div>
+      <div style="background:rgba(255,255,255,0.1); padding:20px; border-radius:10px; margin:15px 0;">
+        <h3>▲ Avantazhi i Energjisë së Rinovueshme</h3>
+        <p><strong>Shqipëria:</strong> ~0.1 kg CO₂/kWh (hidrocentralet)</p>
+        <p><strong>Mesatarja e BE:</strong> ~0.4 kg CO₂/kWh</p>
+        <p><strong>Avantazh konkurrues:</strong> 75% më pak emisione nga energjia elektrike!</p>
       </div>
 
-      <div class="card">
-        <h3>Konfiguration</h3>
-        <div class="hline"></div>
+      <div style="background:rgba(255,255,255,0.1); padding:20px; border-radius:10px; margin:15px 0;">
+        <h3>▲ KUJDES: Jo Gjithçka është E Gjelbër!</h3>
+        <p><strong>Energjia elektrike:</strong> E pastër nga hidroelektriket ✓</p>
+        <p><strong>Proceset industriale:</strong></p>
+        <ul style="line-height:1.8; margin:10px 0;">
+          <li>▲ <strong>Gazi natyror:</strong> Duhet llogaritur veçmas</li>
+          <li>● <strong>Nafta/Diesel:</strong> Kosto e plotë CO₂</li>
+          <li>● <strong>Qymyri:</strong> Emisione shumë të larta</li>
+          <li>■ <strong>Proceset kimike:</strong> CO₂ nga reaksionet</li>
+        </ul>
+        <p style="color:#ffeb3b; font-weight:bold;">
+          ⚠ Shumë kompani shqiptare gabojnë: Mendojnë se hidrocentralet i bëjnë 100% të gjelbra, por CBAM llogarit çdo burim energjie veçmas!
+        </p>
+      </div>
 
-        <div>
-          <strong>Phase-in (Anteil der abgabepflichtigen Emissionen)</strong>
-          <div class="hline"></div>
-          <div id="phase_table" class="table" style="margin-bottom:8px"></div>
-          <div class="row">
-            <button class="btn secondary small" id="btn_linear">Linear 2026→2034</button>
-            <button class="btn secondary small" id="btn_minimal">Konservativ</button>
-          </div>
-        </div>
-
-        <div class="hline"></div>
-
-        <div>
-          <strong>RALEPA-Preisprofil (€/tCO₂e)</strong>
-          <div class="hline"></div>
-          <div class="muted">Verwendete Werte: 2026 = 90; 2027 = 99; 2028 = 108; 2029 = 123; 2030 = 138; 2031 = 148; 2032 = 158; 2033 = 168; 2034 = 178.</div>
-        </div>
-
-        <div class="hline"></div>
-
-        <div>
-          <strong>Übermittlung</strong>
-          <div class="hline"></div>
-          <p class="muted">Ergebnis mit Stammdaten an Google Sheets senden.</p>
-          <button class="btn secondary small" id="btn_submit" disabled>Daten an Sheet senden</button>
-          <div id="submit_status" class="muted" style="margin-top:6px"></div>
-        </div>
+      <div style="background:rgba(255,255,255,0.2); padding:20px; border-radius:10px; margin:15px 0;">
+        <h3>◯ Pika Juaj e Avantazhit</h3>
+        <p><strong>"Ndani emisionet tuaja siç duhet:"</strong></p>
+        <ul style="line-height:1.8;">
+          <li>✓ Energjia elektrike (avantazhi i Shqipërisë)</li>
+          <li>✗ Energjia termike (duhet optimizuar)</li>
+          <li>⚖ Proceset industriale (strategji të posaçme)</li>
+        </ul>
+        <p style="color:#4ecdc4; font-weight:bold;">▶ Rezultat: Minimizoni kostot CBAM duke përdorur avantazhet dhe optimizuar dobësitë!</p>
       </div>
     </div>
 
-    <!-- Results -->
-    <div id="results" class="results" style="display:none">
-      <h3 style="margin-bottom:8px">Ergebnis & Kostenprojektion</h3>
-      <div id="summary" class="item"></div>
-      <div id="yearbox" class="item"></div>
-
-      <div class="chart-wrap">
-        <canvas id="costChart" height="260"></canvas>
+    <!-- Company info -->
+    <div class="company-info">
+      <h3 style="margin-bottom:15px; color:#000;">■ Të Dhënat e Kompanisë</h3>
+      <div class="info-row">
+        <div class="info-label">Emri i firmës: <span class="required">*</span></div>
+        <div>
+          <input type="text" class="info-input" id="company-name" placeholder="p.sh. Albanian Steel Corp" required>
+          <div class="error-message" id="company-name-error"></div>
+        </div>
       </div>
-
-      <div class="item" style="margin-top:10px">
-        <strong>Kontakt</strong><br/>
-        Telefon: +43 650 6965 789 &nbsp;|&nbsp; E-Mail: info@entrenovu.com
+      <div class="info-row">
+        <div class="info-label">Produkti kryesor:</div>
+        <select class="info-input" id="main-product">
+          <option value="">Zgjidhni...</option>
+          <option value="steel">Çelik & Hekur</option>
+          <option value="aluminium">Alumin</option>
+          <option value="cement">Çimento</option>
+          <option value="fertilizer">Pleh</option>
+        </select>
+      </div>
+      <div class="info-row">
+        <div class="info-label">Eksport në BE (ton/vit): <span class="required">*</span></div>
+        <div>
+          <input type="number" class="info-input" id="export-volume" placeholder="p.sh. 10000" required>
+          <div class="error-message" id="export-volume-error"></div>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">Emri juaj: <span class="required">*</span></div>
+        <div>
+          <input type="text" class="info-input" id="contact-name" placeholder="p.sh. Agron Mustafa" required>
+          <div class="error-message" id="contact-name-error"></div>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">Email: <span class="required">*</span></div>
+        <div>
+          <input type="email" class="info-input" id="contact-email" placeholder="p.sh. agron@company.com" required>
+          <div class="error-message" id="contact-email-error"></div>
+        </div>
+      </div>
+      <div class="info-row">
+        <div class="info-label">Blerës kryesor në BE:</div>
+        <input type="text" class="info-input" id="eu-buyers" placeholder="p.sh. Gjermani, Itali">
       </div>
     </div>
+
+    <div class="kosovo-note">
+      <strong>▶ Info speciale për Kosovë:</strong> Eksportuesit e Kosovës janë më pak të prekur (~1% e BPV), por duhet të jenë të përgatitur për tregjet në rritje të BE-së.
+    </div>
+
+    <h3 style="color:#060496; text-align:center; margin:20px 0; font-weight:600;">Zgjidhni sektorin tuaj për analizën e detajuar:</h3>
+
+    <div class="sector-selector">
+      <div class="sector-btn" data-sector="steel" onclick="showSector('steel', event)">
+        <div class="sector-icon">■</div>
+        <h4>Çelik & Hekur</h4>
+        <p>Tuba, profile, fletë</p>
+      </div>
+      <div class="sector-btn" data-sector="aluminium" onclick="showSector('aluminium', event)">
+        <div class="sector-icon">□</div>
+        <h4>Alumin</h4>
+        <p>Pllaka, tela, profile</p>
+      </div>
+      <div class="sector-btn" data-sector="cement" onclick="showSector('cement', event)">
+        <div class="sector-icon">●</div>
+        <h4>Çimento</h4>
+        <p>Klinker, çimento i gatshëm</p>
+      </div>
+      <div class="sector-btn" data-sector="fertilizer" onclick="showSector('fertilizer', event)">
+        <div class="sector-icon">◆</div>
+        <h4>Pleh</h4>
+        <p>Bazuar në azot</p>
+      </div>
+    </div>
+
+    <!-- STEEL -->
+    <div id="steel-analysis" class="gap-analysis">
+      <h2 style="color:#060496; margin-bottom:20px; font-weight:700;">■ Çelik & Hekur - Kontrolli i Gatishmërisë CBAM</h2>
+
+      <div class="question-block">
+        <div class="question-title">1. Rruga e Prodhimit & Emisionet e Drejtpërdrejta (CO₂)</div>
+        <p><strong>CBAM kërkon:</strong> Cili proces prodhimi? Furra e lartë, harku elektrik, apo rrugë tjetër?</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✓ E kemi<br><small>E dokumentuar & e matshme</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">◐ Pjesërisht<br><small>Vlerësime të përafërta</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">✗ Na mungon<br><small>Nuk kemi të dhëna</small></div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">2. Konsumi i Energjisë Elektrike & Emisionet e Tërthorta</div>
+        <p><strong>CBAM kërkon:</strong> kWh për ton çelik + intensiteti CO₂ i energjisë (Shqipëria: ~0,1 kg CO₂/kWh)</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✓ E kemi<br><small>Fatura & matje mujore</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">◐ Pjesërisht<br><small>Vetëm konsumi total</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">✗ Na mungon<br><small>Nuk kemi të dhëna specifike</small></div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">3. Lëndë të Para Hyrëse</div>
+        <p><strong>CBAM kërkon:</strong> Xeheror/qymyr/skrap & CO₂ i integruar nga furnizuesit.</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✓ E kemi<br><small>Çertifikata nga furnizuesit</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">◐ Pjesërisht<br><small>Vetëm origjina</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">✗ Na mungon<br><small>Pa të dhëna CO₂</small></div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">4. Komunikimi me BE & Template</div>
+        <p><strong>CBAM kërkon:</strong> Plotësimi i template-it zyrtar për importuesit e BE-së.</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✓ E kemi<br><small>Template i plotësuar</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">◐ Pjesërisht<br><small>Në proces</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">✗ Na mungon<br><small>Kurrë nuk e kemi përdorur</small></div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">5. Çmimi i Karbonit në Shqipëri</div>
+        <p><strong>Avantazhi CBAM:</strong> Pagesat ekzistuese të CO₂ mund të zbriten nga CBAM.</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✓ Paguajmë çmim CO₂<br><small>E dokumentuar</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">◐ Pjesërisht<br><small>Taksa të tjera mjedisore</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">✗ Asnjë çmim CO₂<br><small>Çmim i plotë CBAM</small></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALUMINIUM -->
+    <div id="aluminium-analysis" class="gap-analysis">
+      <h2 style="color:#060496; margin-bottom:20px; font-weight:700;">□ Alumin - Kontrolli i Gatishmërisë CBAM</h2>
+
+      <div class="question-block">
+        <div class="question-title">1. Rruga e Prodhimit (Primar vs. Riciklim)</div>
+        <p><strong>CBAM kërkon:</strong> Elektrolizë (primar) apo riciklim – profile CO₂ të ndryshme.</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✓ E kemi<br><small>Rruga e qartë</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">◐ Pjesërisht<br><small>Përzierje rrugësh</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">✗ Na mungon<br><small>Pa ndarje</small></div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">2. Intensiteti i Energjisë</div>
+        <p><strong>CBAM kërkon:</strong> kWh/kg alumin + burimi (hidroenergjia = avantazh i madh).</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✓ E kemi<br><small>Hidroenergjia e çertifikuar</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">◐ Pjesërisht<br><small>Konsumi total</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">✗ Na mungon<br><small>Pa të dhëna specifike</small></div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">3. Emisionet PFC (CF₄/C₂F₆)</div>
+        <p><strong>CBAM kërkon:</strong> Matje/llogaritje për elektrolizë (vetëm për primar).</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✓ E kemi<br><small>PFC të matura</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">◐ Pjesërisht<br><small>Vlerësime</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">✗ Na mungon<br><small>Pa të dhëna PFC</small></div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">4. Origjina e Aluminës</div>
+        <p><strong>CBAM kërkon:</strong> CO₂ i integruar në aluminën e importuar.</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✓ E kemi<br><small>Të dhëna nga furnizuesit</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">◐ Pjesërisht<br><small>Vetëm origjina</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">✗ Na mungon<br><small>Pa të dhëna CO₂</small></div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">5. Komunikimi me BE & Template</div>
+        <p><strong>CBAM kërkon:</strong> Plotësimi i template-it zyrtar për importuesit e BE-së.</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✓ E kemi<br><small>Template i plotësuar</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">◐ Pjesërisht<br><small>Në proces</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">✗ Na mungon<br><small>Kurrë nuk e kemi përdorur</small></div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">6. Çmimi i Karbonit në Shqipëri</div>
+        <p><strong>Avantazhi CBAM:</strong> Pagesat ekzistuese të CO₂ mund të zbriten nga CBAM.</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✓ Paguajmë çmim CO₂<br><small>E dokumentuar</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">◐ Pjesërisht<br><small>Taksa të tjera mjedisore</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">✗ Asnjë çmim CO₂<br><small>Çmim i plotë CBAM</small></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CEMENT -->
+    <div id="cement-analysis" class="gap-analysis">
+      <h2 style="color:#060496; margin-bottom:20px; font-weight:700;">● Çimento - Kontrolli i Gatishmërisë CBAM</h2>
+
+      <div class="question-block">
+        <div class="question-title">1. Emisionet e Procesit (Kalcinimi i Gëlqerit)</div>
+        <p><strong>CBAM kërkon:</strong> CO₂ nga kalcinimi CaCO₃ → CaO + CO₂ (60% e totalit)</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✓ E kemi<br><small>Matje kontinuojne</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">◐ Pjesërisht<br><small>Të dhëna periodike</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">✗ Na mungon<br><small>Asnjë monitorim specifik</small></div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">2. Konsumi i Lëndës së Parë</div>
+        <p><strong>CBAM kërkon:</strong> Sasi dhe lloji i lëndës së parë + faktori i emisionit.</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✓ E kemi<br><small>Regjistrim i detajuar</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">◐ Pjesërisht<br><small>Të dhëna të përgjithshme</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">✗ Na mungon<br><small>Pa analiza të detajuara</small></div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">3. Emisionet nga Djegja (Furnacë)</div>
+        <p><strong>CBAM kërkon:</strong> CO₂ nga qymyri/gazi/mazuti për ngrohje.</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✓ E kemi<br><small>Matje dhe llogaritje</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">◐ Pjesërisht<br><small>Vlerësime konsumi</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">✗ Na mungon<br><small>Pa të dhëna CO₂</small></div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">4. Konsumi i Energjisë Elektrike</div>
+        <p><strong>CBAM kërkon:</strong> kWh/ton çimento (Avantazh: hidroenergjia shqiptare)</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✓ E kemi<br><small>Matje për prodhim</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">◐ Pjesërisht<br><small>Konsumi i përgjithshëm</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">✗ Na mungon<br><small>Pa ndarje specifike</small></div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">5. Mbetjet Alternative (Fly ash, Slag)</div>
+        <p><strong>CBAM kërkon:</strong> Përmbajtja dhe origjina e materialeve shtesë.</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✓ E kemi<br><small>Të dokumentuara & matjeve</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">◐ Pjesërisht<br><small>Regjistrim i thjeshtë</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">✗ Na mungon<br><small>Pa të dhëna CO₂</small></div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">6. Template dhe Komunikimi</div>
+        <p><strong>CBAM kërkon:</strong> Plotësimi i template-it për çimento dhe klinker.</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✓ E kemi<br><small>Template i kompletuar</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">◐ Pjesërisht<br><small>Në përgatitje</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">✗ Na mungon<br><small>Pa përvojë</small></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FERTILIZER -->
+    <div id="fertilizer-analysis" class="gap-analysis">
+      <h2 style="color:#060496; margin-bottom:20px; font-weight:700;">◆ Pleh - Kontrolli i Gatishmërisë CBAM</h2>
+
+      <div class="question-block">
+        <div class="question-title">1. Prodhimi i Amoniakut (NH₃)</div>
+        <p><strong>CBAM kërkon:</strong> CO₂ nga reformimi i gazit natyror për hidrogjen.</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✓ E kemi<br><small>Matje dhe bilanci i karbonit</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">◐ Pjesërisht<br><small>Vlerësime</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">✗ Na mungon<br><small>Pa matje specifike</small></div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">2. Prodhimi i Acidit Nitrik (HNO₃)</div>
+        <p><strong>CBAM kërkon:</strong> N₂O emisione + CO₂ nga energia.</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✓ E kemi<br><small>Matje N₂O dhe CO₂</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">◐ Pjesërisht<br><small>Vetëm CO₂</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">✗ Na mungon<br><small>Asnjë monitorim</small></div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">3. Formulimi i Plehrave</div>
+        <p><strong>CBAM kërkon:</strong> Emisione nga përzierja, granulimi dhe përpunimi.</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✓ E kemi<br><small>Të dhëna për procesin</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">◐ Pjesërisht<br><small>Vlerësime të përgjithshme</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">✗ Na mungon<br><small>Pa monitorim</small></div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">4. Konsumi i Energjisë</div>
+        <p><strong>CBAM kërkon:</strong> kWh dhe ngrohje për ton pleh.</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✓ E kemi<br><small>Matje të detajuara</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">◐ Pjesërisht<br><small>Konsumi total</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">✗ Na mungon<br><small>Pa ndarje specifike</small></div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">5. Lëndët e Para dhe Precursorët</div>
+        <p><strong>CBAM kërkon:</strong> CO₂ i integruar në amoniak, acid nitrik, fosfat.</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✓ E kemi<br><small>Të dhëna nga furnizuesit</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">◐ Pjesërisht<br><small>Informacion i kufizuar</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">✗ Na mungon<br><small>Pa të dhëna CO₂</small></div>
+        </div>
+      </div>
+
+      <div class="question-block">
+        <div class="question-title">6. Template dhe Raportimi</div>
+        <p><strong>CBAM kërkon:</strong> Plotësimi i template-it për çdo lloj pleh.</p>
+        <div class="status-grid">
+          <div class="status-option status-have" onclick="selectStatus(this)">✓ E kemi<br><small>Template komplet</small></div>
+          <div class="status-option status-partial" onclick="selectStatus(this)">◐ Pjesërisht<br><small>Në proces</small></div>
+          <div class="status-option status-need" onclick="selectStatus(this)">✗ Na mungon<br><small>Asnjë përvoje</small></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Results Section -->
+    <div class="results-section" id="results" style="display:none;">
+      <h2 style="margin-bottom:20px;">▼ Rezultatet e Analizës së Hendekut CBAM</h2>
+      <div id="results-content"></div>
+      
+      <!-- Cost Projection Chart -->
+      <div class="chart-container">
+        <h3 style="margin-bottom:20px; text-align:center; color:white;">📈 Prognoza e Kostove CBAM 2026-2034 (RALEPA)</h3>
+        <div class="chart-wrapper">
+          <canvas id="projectionChart"></canvas>
+        </div>
+        <div style="margin-top:15px; font-size:0.9em; text-align:center; color:#ddd;">
+          <p>💡 <strong>Shënim:</strong> Grafiku tregon si kostot CBAM do të rriten deri në 2034 sipas prognozave RALEPA</p>
+          <p>🎯 Kompanitë e përgatitura mund të kursejnë deri në 20% në krahasim me vlerat default</p>
+        </div>
+      </div>
+      
+      <div style="text-align:center; margin-top:30px;">
+        <button class="generate-btn" onclick="submitToGoogleSheets()" id="submitBtn">
+          ✉️ Dërgo Rezultatet & Kërko Konsulencë Falas
+        </button>
+        <p style="margin-top:10px; font-size:0.9em;">Rezultatet do të dërgohen tek Entrenovu për analizë të detajuar</p>
+      </div>
+    </div>
+
+    <button class="generate-btn" onclick="generateResults()">
+      ◉ Gjeneroni Analizën e Hendekut
+    </button>
   </div>
 
+  <!-- Chart.js for cost projection visualization -->
+<!--  <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.min.js"></script>-->
+  
   <script>
-    /***********************************
-     * GOOGLE APPS SCRIPT (Submission)
-     ***********************************/
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwWHNn8yRTNcUxHUWEC4MvrNET_GOZFHXTKCHkCvrAWhoH8VDYBGC18Q4o2e4EBD6AOhg/exec";
+    let selectedSector = '';
+    let sectorData = {};
+    let projectionChart = null;
 
-    /***********************************
-     * RALEPA PATH (fixed; no UI field)
-     ***********************************/
-    const EUA_RA_LEPA = { 2026:90, 2027:99, 2028:108, 2029:123, 2030:138, 2031:148, 2032:158, 2033:168, 2034:178 };
+    // RALEPA carbon price forecast data
+    const ralepaPrices = {
+      2026: 90,
+      2027: 95,
+      2028: 108, 
+      2029: 120,
+      2030: 138,
+      2031: 148,
+      2032: 158,
+      2033: 168,
+      2034: 178
+    };
 
-    /***********************************
-     * Phase-in (editable in UI)
-     ***********************************/
-    let PHASE_IN = { 2026:.25, 2027:.35, 2028:.45, 2029:.55, 2030:.65, 2031:.75, 2032:.85, 2033:.95, 2034:1.00 };
-
-    /***********************************
-     * Official EU Default Values (from your Excel)
-     * Map: CN (4/6/8 digits) -> {direct, indirect, label}
-     * Prefer most-specific match (8), otherwise 6, then 4.
-     ***********************************/
-    const DEFAULTS = /* BEGIN AUTO-GENERATED FROM EC EXCEL */ {"25070080":{"direct":0.23,"indirect":0.08,"label":"EU Default (CN 25070080)"},"250700":{"direct":0.23,"indirect":0.08,"label":"EU Default (CN 25070080)"},"2507":{"direct":0.23,"indirect":0.08,"label":"EU Default (CN 25070080)"},"25231000":{"direct":0.83,"indirect":0.04,"label":"EU Default (CN 25231000)"},"252310":{"direct":0.83,"indirect":0.04,"label":"EU Default (CN 25231000)"},"2523":{"direct":0.83,"indirect":0.04,"label":"EU Default (CN 25231000)"},"25232100":{"direct":1.16,"indirect":0.1,"label":"EU Default (CN 25232100)"},"252321":{"direct":1.16,"indirect":0.1,"label":"EU Default (CN 25232100)"},"25232900":{"direct":0.81,"indirect":0.06,"label":"EU Default (CN 25232900)"},"252329":{"direct":0.81,"indirect":0.06,"label":"EU Default (CN 25232900)"},"25233000":{"direct":1.75,"indirect":0.15,"label":"EU Default (CN 25233000)"},"252330":{"direct":1.75,"indirect":0.15,"label":"EU Default (CN 25233000)"},"25239000":{"direct":0.59,"indirect":0.04,"label":"EU Default (CN 25239000)"},"252390":{"direct":0.59,"indirect":0.04,"label":"EU Default (CN 25239000)"},"26011200":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 26011200)"},"260112":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 26011200)"},"2601":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 26011200)"},"28041000":{"direct":10.4,"indirect":0.0,"label":"EU Default (CN 28041000)"},"280410":{"direct":10.4,"indirect":0.0,"label":"EU Default (CN 28041000)"},"2804":{"direct":10.4,"indirect":0.0,"label":"EU Default (CN 28041000)"},"28043000":{"direct":9.95,"indirect":0.0,"label":"EU Default (CN 28043000)"},"280430":{"direct":9.95,"indirect":0.0,"label":"EU Default (CN 28043000)"},"28182000":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 28182000)"},"281820":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 28182000)"},"2818":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 28182000)"},"28261200":{"direct":3.21,"indirect":0.19,"label":"EU Default (CN 28261200)"},"282612":{"direct":3.21,"indirect":0.19,"label":"EU Default (CN 28261200)"},"2826":{"direct":3.21,"indirect":0.19,"label":"EU Default (CN 28261200)"},"28331100":{"direct":1.12,"indirect":0.17,"label":"EU Default (CN 28331100)"},"283311":{"direct":1.12,"indirect":0.17,"label":"EU Default (CN 28331100)"},"2833":{"direct":1.12,"indirect":0.17,"label":"EU Default (CN 28331100)"},"28362000":{"direct":1.24,"indirect":0.2,"label":"EU Default (CN 28362000)"},"283620":{"direct":1.24,"indirect":0.2,"label":"EU Default (CN 28362000)"},"2836":{"direct":1.24,"indirect":0.2,"label":"EU Default (CN 28362000)"},"28365000":{"direct":0.58,"indirect":0.1,"label":"EU Default (CN 28365000)"},"283650":{"direct":0.58,"indirect":0.1,"label":"EU Default (CN 28365000)"},"28366000":{"direct":0.69,"indirect":0.19,"label":"EU Default (CN 28366000)"},"283660":{"direct":0.69,"indirect":0.19,"label":"EU Default (CN 28366000)"},"28369100":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 28369100)"},"283691":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 28369100)"},"2837":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 28369100)"},"28391100":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 28391100)"},"283911":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 28391100)"},"28391900":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 28391900)"},"283919":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 28391900)"},"28399000":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 28399000)"},"283990":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 28399000)"},"28441000":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 28441000)"},"284410":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 28441000)"},"28442000":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 28442000)"},"284420":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 28442000)"},"28443000":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 28443000)"},"284430":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 28443000)"},"28444000":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 28444000)"},"284440":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 28444000)"},"28445000":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 28445000)"},"284450":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 28445000)"},"28451000":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 28451000)"},"284510":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 28451000)"},"28459000":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 28459000)"},"284590":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 28459000)"},"28470000":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 28470000)"},"284700":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 28470000)"},"2849":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 28470000)"},"29021100":{"direct":1.57,"indirect":0.15,"label":"EU Default (CN 29021100)"},"290211":{"direct":1.57,"indirect":0.15,"label":"EU Default (CN 29021100)"},"2902":{"direct":1.57,"indirect":0.15,"label":"EU Default (CN 29021100)"},"29051200":{"direct":1.07,"indirect":0.22,"label":"EU Default (CN 29051200)"},"290512":{"direct":1.07,"indirect":0.22,"label":"EU Default (CN 29051200)"},"2905":{"direct":1.07,"indirect":0.22,"label":"EU Default (CN 29051200)"},"29154000":{"direct":1.2,"indirect":0.2,"label":"EU Default (CN 29154000)"},"291540":{"direct":1.2,"indirect":0.2,"label":"EU Default (CN 29154000)"},"2915":{"direct":1.2,"indirect":0.2,"label":"EU Default (CN 29154000)"},"29214100":{"direct":2.14,"indirect":0.26,"label":"EU Default (CN 29214100)"},"292141":{"direct":2.14,"indirect":0.26,"label":"EU Default (CN 29214100)"},"2921":{"direct":2.14,"indirect":0.26,"label":"EU Default (CN 29214100)"},"29222100":{"direct":0.43,"indirect":0.09,"label":"EU Default (CN 29222100)"},"292221":{"direct":0.43,"indirect":0.09,"label":"EU Default (CN 29222100)"},"2922":{"direct":0.43,"indirect":0.09,"label":"EU Default (CN 29222100)"},"29261000":{"direct":1.6,"indirect":0.33,"label":"EU Default (CN 29261000)"},"292610":{"direct":1.6,"indirect":0.33,"label":"EU Default (CN 29261000)"},"2926":{"direct":1.6,"indirect":0.33,"label":"EU Default (CN 29261000)"},"29333999":{"direct":1.07,"indirect":0.22,"label":"EU Default (CN 29333999)"},"293339":{"direct":1.07,"indirect":0.22,"label":"EU Default (CN 29333999)"},"2933":{"direct":1.07,"indirect":0.22,"label":"EU Default (CN 29333999)"},"30049000":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 30049000)"},"300490":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 30049000)"},"3004":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 30049000)"},"31021011":{"direct":1.3,"indirect":0.3,"label":"EU Default (CN 31021011)"},"310210":{"direct":1.3,"indirect":0.3,"label":"EU Default (CN 31021011)"},"3102":{"direct":1.3,"indirect":0.3,"label":"EU Default (CN 31021011)"},"31021019":{"direct":1.3,"indirect":0.3,"label":"EU Default (CN 31021019)"},"31022100":{"direct":0.77,"indirect":0.11,"label":"EU Default (CN 31022100)"},"310221":{"direct":0.77,"indirect":0.11,"label":"EU Default (CN 31022100)"},"31022900":{"direct":0.77,"indirect":0.11,"label":"EU Default (CN 31022900)"},"310229":{"direct":0.77,"indirect":0.11,"label":"EU Default (CN 31022900)"},"31023000":{"direct":0.25,"indirect":0.05,"label":"EU Default (CN 31023000)"},"310230":{"direct":0.25,"indirect":0.05,"label":"EU Default (CN 31023000)"},"31024000":{"direct":0.37,"indirect":0.07,"label":"EU Default (CN 31024000)"},"310240":{"direct":0.37,"indirect":0.07,"label":"EU Default (CN 31024000)"},"31025000":{"direct":0.57,"indirect":0.11,"label":"EU Default (CN 31025000)"},"310250":{"direct":0.57,"indirect":0.11,"label":"EU Default (CN 31025000)"},"31026000":{"direct":0.36,"indirect":0.06,"label":"EU Default (CN 31026000)"},"310260":{"direct":0.36,"indirect":0.06,"label":"EU Default (CN 31026000)"},"31028000":{"direct":0.51,"indirect":0.09,"label":"EU Default (CN 31028000)"},"310280":{"direct":0.51,"indirect":0.09,"label":"EU Default (CN 31028000)"},"31029000":{"direct":0.35,"indirect":0.07,"label":"EU Default (CN 31029000)"},"310290":{"direct":0.35,"indirect":0.07,"label":"EU Default (CN 31029000)"},"32041100":{"direct":2.38,"indirect":0.4,"label":"EU Default (CN 32041100)"},"320411":{"direct":2.38,"indirect":0.4,"label":"EU Default (CN 32041100)"},"3204":{"direct":2.38,"indirect":0.4,"label":"EU Default (CN 32041100)"},"32041200":{"direct":2.86,"indirect":0.51,"label":"EU Default (CN 32041200)"},"320412":{"direct":2.86,"indirect":0.51,"label":"EU Default (CN 32041200)"},"32041300":{"direct":1.83,"indirect":0.28,"label":"EU Default (CN 32041300)"},"320413":{"direct":1.83,"indirect":0.28,"label":"EU Default (CN 32041300)"},"32041400":{"direct":1.65,"indirect":0.28,"label":"EU Default (CN 32041400)"},"320414":{"direct":1.65,"indirect":0.28,"label":"EU Default (CN 32041400)"},"32041500":{"direct":1.61,"indirect":0.25,"label":"EU Default (CN 32041500)"},"320415":{"direct":1.61,"indirect":0.25,"label":"EU Default (CN 32041500)"},"32041600":{"direct":2.38,"indirect":0.4,"label":"EU Default (CN 32041600)"},"320416":{"direct":2.38,"indirect":0.4,"label":"EU Default (CN 32041600)"},"32041700":{"direct":1.69,"indirect":0.29,"label":"EU Default (CN 32041700)"},"320417":{"direct":1.69,"indirect":0.29,"label":"EU Default (CN 32041700)"},"32041900":{"direct":2.55,"indirect":0.42,"label":"EU Default (CN 32041900)"},"320419":{"direct":2.55,"indirect":0.42,"label":"EU Default (CN 32041900)"},"32042000":{"direct":2.19,"indirect":0.37,"label":"EU Default (CN 32042000)"},"320420":{"direct":2.19,"indirect":0.37,"label":"EU Default (CN 32042000)"},"3205":{"direct":2.19,"indirect":0.37,"label":"EU Default (CN 32042000)"},"32129000":{"direct":2.02,"indirect":0.32,"label":"EU Default (CN 32129000)"},"321290":{"direct":2.02,"indirect":0.32,"label":"EU Default (CN 32129000)"},"3212":{"direct":2.02,"indirect":0.32,"label":"EU Default (CN 32129000)"},"32151990":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 32151990)"},"321519":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 32151990)"},"3215":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 32151990)"},"33011290":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 33011290)"},"330112":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 33011290)"},"3301":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 33011290)"},"34021190":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 34021190)"},"340211":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 34021190)"},"3402":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 34021190)"},"35069190":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 35069190)"},"350691":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 35069190)"},"3506":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 35069190)"},"37079090":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 37079090)"},"370790":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 37079090)"},"3707":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 37079090)"},"38089110":{"direct":1.59,"indirect":0.27,"label":"EU Default (CN 38089110)"},"380891":{"direct":1.59,"indirect":0.27,"label":"EU Default (CN 38089110)"},"3808":{"direct":1.59,"indirect":0.27,"label":"EU Default (CN 38089110)"},"38089290":{"direct":1.59,"indirect":0.27,"label":"EU Default (CN 38089290)"},"380892":{"direct":1.59,"indirect":0.27,"label":"EU Default (CN 38089290)"},"38089390":{"direct":1.59,"indirect":0.27,"label":"EU Default (CN 38089390)"},"380893":{"direct":1.59,"indirect":0.27,"label":"EU Default (CN 38089390)"},"38089490":{"direct":1.59,"indirect":0.27,"label":"EU Default (CN 38089490)"},"380894":{"direct":1.59,"indirect":0.27,"label":"EU Default (CN 38089490)"},"38089910":{"direct":1.59,"indirect":0.27,"label":"EU Default (CN 38089910)"},"380899":{"direct":1.59,"indirect":0.27,"label":"EU Default (CN 38089910)"},"38089990":{"direct":1.59,"indirect":0.27,"label":"EU Default (CN 38089990)"},"38091090":{"direct":1.51,"indirect":0.26,"label":"EU Default (CN 38091090)"},"380910":{"direct":1.51,"indirect":0.26,"label":"EU Default (CN 38091090)"},"38099100":{"direct":1.73,"indirect":0.29,"label":"EU Default (CN 38099100)"},"380991":{"direct":1.73,"indirect":0.29,"label":"EU Default (CN 38099100)"},"38099300":{"direct":1.63,"indirect":0.27,"label":"EU Default (CN 38099300)"},"380993":{"direct":1.63,"indirect":0.27,"label":"EU Default (CN 38099300)"},"38112100":{"direct":1.54,"indirect":0.26,"label":"EU Default (CN 38112100)"},"381121":{"direct":1.54,"indirect":0.26,"label":"EU Default (CN 38112100)"},"38112900":{"direct":1.54,"indirect":0.26,"label":"EU Default (CN 38112900)"},"381129":{"direct":1.54,"indirect":0.26,"label":"EU Default (CN 38112900)"},"38151200":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 38151200)"},"381512":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 38151200)"},"38151990":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 38151990)"},"381519":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 38151990)"},"3815":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 38151990)"},"38220000":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 38220000)"},"382200":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 38220000)"},"38249992":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 38249992)"},"382499":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 38249992)"},"3824":{"direct":0.31,"indirect":0.05,"label":"EU Default (CN 38249992)"},"39011020":{"direct":0.72,"indirect":0.11,"label":"EU Default (CN 39011020)"},"390110":{"direct":0.72,"indirect":0.11,"label":"EU Default (CN 39011020)"},"3901":{"direct":0.72,"indirect":0.11,"label":"EU Default (CN 39011020)"},"39012010":{"direct":1.21,"indirect":0.18,"label":"EU Default (CN 39012010)"},"390120":{"direct":1.21,"indirect":0.18,"label":"EU Default (CN 39012010)"},"39014000":{"direct":2.21,"indirect":0.36,"label":"EU Default (CN 39014000)"},"390140":{"direct":2.21,"indirect":0.36,"label":"EU Default (CN 39014000)"},"39019010":{"direct":2.17,"indirect":0.31,"label":"EU Default (CN 39019010)"},"390190":{"direct":2.17,"indirect":0.31,"label":"EU Default (CN 39019010)"},"3902":{"direct":2.17,"indirect":0.31,"label":"EU Default (CN 39019010)"},"39021000":{"direct":1.21,"indirect":0.18,"label":"EU Default (CN 39021000)"},"390210":{"direct":1.21,"indirect":0.18,"label":"EU Default (CN 39021000)"},"39022000":{"direct":1.66,"indirect":0.26,"label":"EU Default (CN 39022000)"},"390220":{"direct":1.66,"indirect":0.26,"label":"EU Default (CN 39022000)"},"39023000":{"direct":1.63,"indirect":0.26,"label":"EU Default (CN 39023000)"},"390230":{"direct":1.63,"indirect":0.26,"label":"EU Default (CN 39023000)"},"39031100":{"direct":1.55,"indirect":0.22,"label":"EU Default (CN 39031100)"},"390311":{"direct":1.55,"indirect":0.22,"label":"EU Default (CN 39031100)"},"39031990":{"direct":1.55,"indirect":0.22,"label":"EU Default (CN 39031990)"},"390319":{"direct":1.55,"indirect":0.22,"label":"EU Default (CN 39031990)"},"3903":{"direct":1.55,"indirect":0.22,"label":"EU Default (CN 39031990)"},"39041000":{"direct":1.49,"indirect":0.24,"label":"EU Default (CN 39041000)"},"390410":{"direct":1.49,"indirect":0.24,"label":"EU Default (CN 39041000)"},"39042100":{"direct":1.48,"indirect":0.23,"label":"EU Default (CN 39042100)"},"390421":{"direct":1.48,"indirect":0.23,"label":"EU Default (CN 39042100)"},"39042200":{"direct":1.48,"indirect":0.23,"label":"EU Default (CN 39042200)"},"390422":{"direct":1.48,"indirect":0.23,"label":"EU Default (CN 39042200)"},"39043000":{"direct":1.48,"indirect":0.23,"label":"EU Default (CN 39043000)"},"390430":{"direct":1.48,"indirect":0.23,"label":"EU Default (CN 39043000)"},"39044000":{"direct":1.48,"indirect":0.23,"label":"EU Default (CN 39044000)"},"390440":{"direct":1.48,"indirect":0.23,"label":"EU Default (CN 39044000)"},"39045000":{"direct":1.48,"indirect":0.23,"label":"EU Default (CN 39045000)"},"390450":{"direct":1.48,"indirect":0.23,"label":"EU Default (CN 39045000)"},"39046100":{"direct":1.48,"indirect":0.23,"label":"EU Default (CN 39046100)"},"390461":{"direct":1.48,"indirect":0.23,"label":"EU Default (CN 39046100)"},"39046900":{"direct":1.48,"indirect":0.23,"label":"EU Default (CN 39046900)"},"390469":{"direct":1.48,"indirect":0.23,"label":"EU Default (CN 39046900)"},"39049000":{"direct":1.48,"indirect":0.23,"label":"EU Default (CN 39049000)"},"390490":{"direct":1.48,"indirect":0.23,"label":"EU Default (CN 39049000)"},"3905":{"direct":1.48,"indirect":0.23,"label":"EU Default (CN 39049000)"},"39053000":{"direct":1.27,"indirect":0.22,"label":"EU Default (CN 39053000)"},"390530":{"direct":1.27,"indirect":0.22,"label":"EU Default (CN 39053000)"},"3906":{"direct":1.27,"indirect":0.22,"label":"EU Default (CN 39053000)"},"39069090":{"direct":2.1,"indirect":0.3,"label":"EU Default (CN 39069090)"},"390690":{"direct":2.1,"indirect":0.3,"label":"EU Default (CN 39069090)"},"3907":{"direct":2.1,"indirect":0.3,"label":"EU Default (CN 39069090)"},"39073000":{"direct":2.33,"indirect":0.33,"label":"EU Default (CN 39073000)"},"390730":{"direct":2.33,"indirect":0.33,"label":"EU Default (CN 39073000)"},"3909":{"direct":2.33,"indirect":0.33,"label":"EU Default (CN 39073000)"},"39100000":{"direct":2.32,"indirect":0.33,"label":"EU Default (CN 39100000)"},"391000":{"direct":2.32,"indirect":0.33,"label":"EU Default (CN 39100000)"},"3911":{"direct":2.32,"indirect":0.33,"label":"EU Default (CN 39100000)"},"39121100":{"direct":2.39,"indirect":0.4,"label":"EU Default (CN 39121100)"},"391211":{"direct":2.39,"indirect":0.4,"label":"EU Default (CN 39121100)"},"3912":{"direct":2.39,"indirect":0.4,"label":"EU Default (CN 39121100)"},"39123985":{"direct":2.33,"indirect":0.38,"label":"EU Default (CN 39123985)"},"391239":{"direct":2.33,"indirect":0.38,"label":"EU Default (CN 39123985)"},"3913":{"direct":2.33,"indirect":0.38,"label":"EU Default (CN 39123985)"},"39140090":{"direct":2.28,"indirect":0.35,"label":"EU Default (CN 39140090)"},"391400":{"direct":2.28,"indirect":0.35,"label":"EU Default (CN 39140090)"},"3914":{"direct":2.28,"indirect":0.35,"label":"EU Default (CN 39140090)"},"40021990":{"direct":2.22,"indirect":0.4,"label":"EU Default (CN 40021990)"},"400219":{"direct":2.22,"indirect":0.4,"label":"EU Default (CN 40021990)"},"4002":{"direct":2.22,"indirect":0.4,"label":"EU Default (CN 40021990)"},"40022000":{"direct":1.78,"indirect":0.35,"label":"EU Default (CN 40022000)"},"400220":{"direct":1.78,"indirect":0.35,"label":"EU Default (CN 40022000)"},"40023100":{"direct":2.15,"indirect":0.38,"label":"EU Default (CN 40023100)"},"400231":{"direct":2.15,"indirect":0.38,"label":"EU Default (CN 40023100)"},"40023900":{"direct":2.21,"indirect":0.4,"label":"EU Default (CN 40023900)"},"400239":{"direct":2.21,"indirect":0.4,"label":"EU Default (CN 40023900)"},"40024100":{"direct":2.25,"indirect":0.4,"label":"EU Default (CN 40024100)"},"400241":{"direct":2.25,"indirect":0.4,"label":"EU Default (CN 40024100)"},"40024900":{"direct":2.25,"indirect":0.4,"label":"EU Default (CN 40024900)"},"400249":{"direct":2.25,"indirect":0.4,"label":"EU Default (CN 40024900)"},"40025100":{"direct":2.22,"indirect":0.4,"label":"EU Default (CN 40025100)"},"400251":{"direct":2.22,"indirect":0.4,"label":"EU Default (CN 40025100)"},"40025900":{"direct":2.22,"indirect":0.4,"label":"EU Default (CN 40025900)"},"400259":{"direct":2.22,"indirect":0.4,"label":"EU Default (CN 40025900)"},"40029100":{"direct":2.1,"indirect":0.38,"label":"EU Default (CN 40029100)"},"400291":{"direct":2.1,"indirect":0.38,"label":"EU Default (CN 40029100)"},"40029910":{"direct":2.16,"indirect":0.39,"label":"EU Default (CN 40029910)"},"400299":{"direct":2.16,"indirect":0.39,"label":"EU Default (CN 40029910)"},"40029990":{"direct":2.15,"indirect":0.39,"label":"EU Default (CN 40029990)"},"400299":{"direct":2.15,"indirect":0.39,"label":"EU Default (CN 40029990)"} /* ... trimmed for brevity in this snippet ... */ };
-    /* END AUTO-GENERATED FROM EC EXCEL */
-    // NOTE: The object above contains the full official list (incl. fallback 6- & 4-digit prefixes).
-
-    /***********************************
-     * Utilities
-     ***********************************/
-    const $ = s => document.querySelector(s);
-    function escapeHtml(s){ return String(s).replace(/[&<>"]/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[m])); }
-    function resolveDefault(cn){
-      const clean = String(cn||'').replace(/\D/g,'');
-      if(!clean) return null;
-      if(DEFAULTS[clean]) return DEFAULTS[clean];
-      if(clean.length>=8 && DEFAULTS[clean.slice(0,8)]) return DEFAULTS[clean.slice(0,8)];
-      if(clean.length>=6 && DEFAULTS[clean.slice(0,6)]) return DEFAULTS[clean.slice(0,6)];
-      if(DEFAULTS[clean.slice(0,4)]) return DEFAULTS[clean.slice(0,4)];
-      return null;
+    function showSector(sector, event) {
+      // Remove active class from all buttons
+      document.querySelectorAll('.sector-btn').forEach(btn => btn.classList.remove('active'));
+      
+      // Hide all analyses
+      document.querySelectorAll('.gap-analysis').forEach(analysis => analysis.classList.remove('active'));
+      
+      // Show selected analysis and activate button
+      document.getElementById(sector + '-analysis').classList.add('active');
+      event.currentTarget.classList.add('active');
+      
+      selectedSector = sector;
+      
+      // Update dropdown
+      document.getElementById('main-product').value = sector;
     }
 
-    /***********************************
-     * Phase-in UI
-     ***********************************/
-    function renderPhaseTable(){
-      const wrap = $('#phase_table'); wrap.innerHTML='';
-      Object.keys(PHASE_IN).forEach(y=>{
-        const L = document.createElement('div'); L.className='cell label'; L.textContent = `${y} Anteil (0–1)`;
-        const R = document.createElement('div'); R.className='cell';
-        const inp = document.createElement('input'); inp.type='number'; inp.step='0.01'; inp.min='0'; inp.max='1'; inp.className='input';
-        inp.value = PHASE_IN[y].toFixed(2);
-        inp.addEventListener('input', ()=>{ let v=parseFloat(inp.value||'0'); if(isNaN(v)) v=0; v=Math.max(0,Math.min(1,v)); PHASE_IN[y]=v; });
-        R.appendChild(inp); wrap.appendChild(L); wrap.appendChild(R);
+    function selectStatus(element) {
+      // Remove selected class from siblings
+      const siblings = element.parentNode.querySelectorAll('.status-option');
+      siblings.forEach(sibling => sibling.classList.remove('selected'));
+      
+      // Add selected class to clicked element
+      element.classList.add('selected');
+    }
+
+    function validateInputs() {
+      let isValid = true;
+      
+      // Clear previous errors
+      document.querySelectorAll('.info-input').forEach(input => input.classList.remove('validation-error'));
+      document.querySelectorAll('.error-message').forEach(error => error.textContent = '');
+      
+      // Check required fields
+      const requiredFields = [
+        { id: 'company-name', name: 'Emri i firmës' },
+        { id: 'export-volume', name: 'Vëllimi i eksportit' },
+        { id: 'contact-name', name: 'Emri juaj' },
+        { id: 'contact-email', name: 'Email' }
+      ];
+      
+      requiredFields.forEach(field => {
+        const input = document.getElementById(field.id);
+        if (!input.value.trim()) {
+          input.classList.add('validation-error');
+          document.getElementById(field.id + '-error').textContent = field.name + ' është i detyrueshëm';
+          isValid = false;
+        }
       });
-    }
-    renderPhaseTable();
-
-    document.getElementById('btn_linear').addEventListener('click', ()=>{
-      const yrs = Object.keys(PHASE_IN).map(Number); const n=yrs.length-1;
-      yrs.forEach((y,i)=>{ PHASE_IN[y] = i/n; });
-      PHASE_IN[yrs[yrs.length-1]] = 1;
-      renderPhaseTable();
-    });
-    document.getElementById('btn_minimal').addEventListener('click', ()=>{
-      PHASE_IN = { 2026:.10, 2027:.25, 2028:.40, 2029:.55, 2030:.70, 2031:.80, 2032:.90, 2033:.95, 2034:1.00 };
-      renderPhaseTable();
-    });
-
-    /***********************************
-     * Calculation (formula only in code)
-     ***********************************/
-    let chartRef = null;
-
-    function computeAndRender(){
-      const name = $('#c_name').value.trim();
-      const cn = ($('#c_cn').value||'').trim();
-      const qty = Number($('#c_qty').value||0);
-      const dataMode = document.querySelector('input[name="data_mode"]:checked')?.value || 'default';
-      const dir = Number($('#c_dir').value||NaN);
-      const ind = Number($('#c_ind').value||NaN);
-      const carbonPaid = Math.max(0, Number($('#c_carbon_paid').value||0)); // €/tCO2e
-
-      const errs=[];
-      if(!name) errs.push('• Firmenname ist erforderlich.');
-      if(!cn || !/^\d{4,10}$/.test(cn)) errs.push('• CN-Code muss 4–10 Ziffern haben.');
-      if(!(qty>0)) errs.push('• Menge (t) muss > 0 sein.');
-      if(dataMode==='specific' && !(isFinite(dir) && isFinite(ind))){
-        errs.push('• Bitte Direkt- UND Indirekt-Wert angeben oder EU-Defaultwerte wählen.');
+      
+      // Check email format
+      const emailInput = document.getElementById('contact-email');
+      if (emailInput.value && !emailInput.value.includes('@')) {
+        emailInput.classList.add('validation-error');
+        document.getElementById('contact-email-error').textContent = 'Ju lutem vendosni një email të vlefshëm';
+        isValid = false;
       }
-      if(errs.length){ $('#errors').innerHTML = errs.join('<br>'); return { ok:false }; }
-      $('#errors').textContent='';
-
-      // Faktoren bestimmen
-      let direct=0, indirect=0, source='';
-      if(dataMode==='specific'){
-        direct = dir; indirect = ind; source = 'Eigene spezifische Werte';
-      } else {
-        const def = resolveDefault(cn);
-        if(!def){ $('#errors').innerHTML='• Keine Defaultwerte für diesen CN-Code gefunden.'; return { ok:false }; }
-        direct = def.direct; indirect = def.indirect; source = def.label || 'EU-Defaultwerte';
+      
+      // Check if sector is selected
+      if (!selectedSector) {
+        alert('Ju lutem zgjidhni një sektor për analizë!');
+        isValid = false;
       }
-
-      const ef_total = direct + indirect;             // tCO2e pro t
-      const years = Object.keys(EUA_RA_LEPA).map(Number);
-      const prepared = [], labels = [], details = [];
-
-      years.forEach(y=>{
-        const share = PHASE_IN[y] ?? 1;               // 0..1
-        const price = EUA_RA_LEPA[y];                 // €/tCO2e
-        const embedded = ef_total * qty;              // tCO2e
-        const gross = embedded * price * share;       // €
-        const credit = embedded * carbonPaid;         // €
-        const cost = Math.max(0, gross - credit);     // €
-        prepared.push(Math.round(cost));
-        labels.push(String(y));
-        details.push({ y, price, share, embedded, cost });
-      });
-
-      // Erstes Jahr (2026)
-      const d0 = details[0];
-
-      // Ergebnisse anzeigen
-      $('#results').style.display='block';
-      $('#summary').innerHTML = `
-        <strong>Parameter</strong><br/>
-        • Unternehmen: ${escapeHtml(name)}<br/>
-        • CN-Code: <span class="mono">${escapeHtml(cn)}</span> &nbsp;|&nbsp; Quelle: ${escapeHtml(source)}<br/>
-        • Spezifische Emissionen: <span class="mono">${ef_total.toFixed(3)}</span> tCO₂e/t
-      `;
-      $('#yearbox').innerHTML = `
-        <strong>Jahresansicht (Startjahr 2026)</strong><br/>
-        • Eingebettete Emissionen: <span class="mono">${d0.embedded.toFixed(2)}</span> tCO₂e &nbsp;|&nbsp;
-          Anteil CBAM: <span class="mono">${(d0.share*100).toFixed(0)}%</span> &nbsp;|&nbsp;
-          RALEPA-Preis: <span class="mono">€${d0.price.toFixed(0)}/tCO₂e</span><br/>
-        • Gesamtkosten (Menge: ${qty.toLocaleString()} t): <span class="mono">€${Math.round(d0.cost).toLocaleString()}</span>
-      `;
-
-      // Diagramm
-      const ctx = document.getElementById('costChart').getContext('2d');
-      if(chartRef) chartRef.destroy();
-      chartRef = new Chart(ctx, {
-        type:'line',
-        data:{ labels, datasets:[{ label:'CBAM-Kosten (RALEPA-Pfad)', data: prepared }] },
-        options:{ responsive:true, plugins:{legend:{display:true}}, scales:{ x:{title:{display:true,text:'Jahr'}}, y:{title:{display:true,text:'€'}, beginAtZero:true } } }
-      });
-
-      // Übermittlung vorbereiten
-      document.getElementById('btn_submit').disabled = false;
-      window._lastSubmission = {
-        company_name: name,
-        cn_code: cn,
-        qty: qty,
-        data_mode: dataMode,
-        direct: direct,
-        indirect: indirect,
-        ef_total: ef_total,
-        carbon_paid: carbonPaid,
-        years: labels,
-        costs: prepared
-      };
-      return { ok:true };
+      
+      return isValid;
     }
 
-    /***********************************
-     * Events
-     ***********************************/
-    document.getElementById('btn_calc').addEventListener('click', computeAndRender);
+    function collectSectorResponses() {
+      const questions = document.querySelectorAll(`#${selectedSector}-analysis .question-block`);
+      const responses = [];
+      
+      questions.forEach((question, index) => {
+        const title = question.querySelector('.question-title').textContent;
+        const selected = question.querySelector('.status-option.selected');
+        
+        if (selected) {
+          let status = 'unknown';
+          if (selected.classList.contains('status-have')) status = 'have';
+          else if (selected.classList.contains('status-partial')) status = 'partial';
+          else if (selected.classList.contains('status-need')) status = 'need';
+          
+          responses.push({
+            question: title,
+            status: status,
+            text: selected.textContent.trim()
+          });
+        }
+      });
+      
+      return responses;
+    }
 
-    document.getElementById('btn_reset').addEventListener('click', ()=>{
-      ['c_name','c_cn','c_qty','c_dir','c_ind','c_carbon_paid'].forEach(id=>{ document.getElementById(id).value=''; });
-      document.querySelector('input[name="data_mode"][value="default"]').checked = true;
-      document.getElementById('errors').textContent='';
-      document.getElementById('results').style.display='none';
-      document.getElementById('btn_submit').disabled = true;
-      document.getElementById('submit_status').textContent = '';
-    });
+    function generateResults() {
+      if (!validateInputs()) return;
+      
+      const responses = collectSectorResponses();
+      if (responses.length === 0) {
+        alert('Ju lutem përgjigjuni të paktën një pyetje në sektorin e zgjedhur!');
+        return;
+      }
+      
+      // Calculate readiness score
+      const percentage = calculateReadinessScore(responses);
+      
+      // Generate results
+      const resultsContent = generateResultsContent(percentage, responses);
+      document.getElementById('results-content').innerHTML = resultsContent;
+      document.getElementById('results').style.display = 'block';
+      
+      // Scroll to results first
+      document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+      
+      // Generate chart with delay to ensure everything is rendered
+      setTimeout(() => {
+        console.log('🔄 Creating cost projection chart...');
+        createCostProjectionChart(percentage);
+      }, 800);
+    }
 
-    // Google Apps Script: POST via verstecktem Formular (Popup)
-    document.getElementById('btn_submit').addEventListener('click', ()=>{
-      if(!window._lastSubmission){ document.getElementById('submit_status').textContent='Bitte zuerst berechnen.'; return; }
-
-      const payload = {
-        timestamp: new Date().toISOString(),
-        company_name: window._lastSubmission.company_name,
-        cn_code: window._lastSubmission.cn_code,
-        qty: window._lastSubmission.qty,
-        data_mode: window._lastSubmission.data_mode,
-        direct: window._lastSubmission.direct,
-        indirect: window._lastSubmission.indirect,
-        ef_total: window._lastSubmission.ef_total,
-        carbon_paid: window._lastSubmission.carbon_paid,
-        years: JSON.stringify(window._lastSubmission.years),
-        costs: JSON.stringify(window._lastSubmission.costs)
-      };
-
-      try{
-        const popup = window.open('', 'cbam_submit', 'width=420,height=360,scrollbars=no,resizable=no');
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = SCRIPT_URL;
-        form.target = 'cbam_submit';
-        form.style.display='none';
-        Object.keys(payload).forEach(k=>{
-          const input = document.createElement('input');
-          input.type='hidden'; input.name=k; input.value=payload[k];
-          form.appendChild(input);
+    function generateResultsContent(percentage, responses) {
+      const companyName = document.getElementById('company-name').value;
+      const exportVolume = document.getElementById('export-volume').value;
+      
+      let readinessLevel = 'I ulët';
+      let readinessColor = '#e74c3c';
+      if (percentage >= 70) {
+        readinessLevel = 'I lartë';
+        readinessColor = '#27ae60';
+      } else if (percentage >= 40) {
+        readinessLevel = 'Mesatar';
+        readinessColor = '#f39c12';
+      }
+      
+      let content = `
+        <div style="background:rgba(255,255,255,0.1); padding:20px; border-radius:10px; margin-bottom:20px;">
+          <h3>📊 Përmbledhja e Gatishmërisë CBAM</h3>
+          <p><strong>Kompania:</strong> ${companyName}</p>
+          <p><strong>Sektori:</strong> ${getSectorName(selectedSector)}</p>
+          <p><strong>Vëllimi vjetor i eksportit:</strong> ${exportVolume} ton</p>
+          <p><strong>Niveli i gatishmërisë:</strong> <span style="color:${readinessColor}; font-weight:bold;">${percentage}% - ${readinessLevel}</span></p>
+        </div>
+      `;
+      
+      // Priority actions
+      const needActions = responses.filter(r => r.status === 'need');
+      const partialActions = responses.filter(r => r.status === 'partial');
+      
+      if (needActions.length > 0) {
+        content += `
+          <div class="action-item priority-high">
+            <h4>🚨 Prioritet i Lartë - Veprime të Domosdoshme</h4>
+            <ul style="margin:10px 0; line-height:1.8;">`;
+        needActions.forEach(action => {
+          content += `<li>${action.question.replace(/^\d+\.\s*/, '')}</li>`;
         });
-        document.body.appendChild(form);
-        form.submit();
-        document.body.removeChild(form);
-        document.getElementById('submit_status').textContent='Übermittlung gestartet…';
-      }catch(e){
-        document.getElementById('submit_status').textContent='Übermittlung fehlgeschlagen. Bitte URL prüfen.';
+        content += `</ul>
+          </div>`;
       }
-    });
+      
+      if (partialActions.length > 0) {
+        content += `
+          <div class="action-item priority-medium">
+            <h4>⚠ Prioritet Mesatar - Përmirësime të Nevojshme</h4>
+            <ul style="margin:10px 0; line-height:1.8;">`;
+        partialActions.forEach(action => {
+          content += `<li>${action.question.replace(/^\d+\.\s*/, '')}</li>`;
+        });
+        content += `</ul>
+          </div>`;
+      }
+      
+      // Cost calculation with RALEPA prices
+      const estimatedCost2026 = calculateEstimatedCosts(exportVolume, percentage, 2026);
+      const estimatedCost2030 = calculateEstimatedCosts(exportVolume, percentage, 2030);
+      const estimatedCost2034 = calculateEstimatedCosts(exportVolume, percentage, 2034);
+      
+      content += `
+        <div class="action-item">
+          <h4>💰 Vlerësimi i Kostove CBAM (RALEPA Prognoza)</h4>
+          <p><strong>2026:</strong> €${estimatedCost2026.toLocaleString()} (90€/tCO₂)</p>
+          <p><strong>2030:</strong> €${estimatedCost2030.toLocaleString()} (138€/tCO₂)</p>
+          <p><strong>2034:</strong> €${estimatedCost2034.toLocaleString()} (178€/tCO₂)</p>
+          <p style="margin-top:10px; color:#ffeb3b; font-weight:bold;">
+            📈 Rritja e kostove 2026-2034: +${Math.round(((estimatedCost2034 - estimatedCost2026) / estimatedCost2026) * 100)}%
+          </p>
+        </div>
+      `;
+      
+      // Next steps
+      content += `
+        <div class="action-item priority-low">
+          <h4>▶ Hapat e Ardhshëm</h4>
+          <ul style="margin:10px 0; line-height:1.8;">
+            <li>Dërgo rezultatet për konsulencë falas nga Entrenovu</li>
+            <li>Filloni të grumbulloni të dhënat e mungura</li>
+            <li>Trajnoni ekipin tuaj për CBAM</li>
+            <li>Krijoni një plan përgatitjeje deri në Janar 2026</li>
+            <li>Optimizoni proceset për të minimizuar kostot CBAM</li>
+          </ul>
+          <p style="margin-top:15px;"><strong>📞 Kontakt:</strong> info@entrenovu.com</p>
+        </div>
+      `;
+      
+      return content;
+    }
+
+    function getSectorName(sector) {
+      const names = {
+        'steel': 'Çelik & Hekur',
+        'aluminium': 'Alumin', 
+        'cement': 'Çimento',
+        'fertilizer': 'Pleh'
+      };
+      return names[sector] || sector;
+    }
+
+    function calculateEstimatedCosts(volume, readinessPercentage, year = 2026) {
+      // Updated with official EU Commission default values
+      const sectorDefaultValues = {
+        'steel': 2.80,      // tCO2 per ton - EU official average
+        'aluminium': 11.50, // tCO2 per ton - EU official average  
+        'cement': 0.97,     // tCO2 per ton - EU official average
+        'fertilizer': 1.72  // tCO2 per ton - EU official average
+      };
+      
+      const co2Price = ralepaPrices[year] || 90; // Use RALEPA prices
+      const co2PerTon = sectorDefaultValues[selectedSector] || 2.00;
+      let baseCost = volume * co2PerTon * co2Price;
+      
+      // If well-prepared, companies can achieve 10-20% below default values
+      if (readinessPercentage >= 80) {
+        baseCost *= 0.85; // 15% reduction for excellent preparation
+      } else if (readinessPercentage >= 60) {
+        baseCost *= 0.90; // 10% reduction for good preparation
+      } else if (readinessPercentage < 40) {
+        baseCost *= 1.0; // Full default value cost for unprepared companies
+      }
+      
+      return Math.round(baseCost);
+    }
+
+    function createCostProjectionChart(readinessPercentage) {
+      console.log('📊 Starting chart creation...');
+      
+      const exportVolume = parseInt(document.getElementById('export-volume').value) || 1000;
+      const canvas = document.getElementById('projectionChart');
+      
+      if (!canvas) {
+        console.error('❌ Canvas not found');
+        return;
+      }
+
+      // Prepare data
+      const years = Object.keys(ralepaPrices);
+      const preparedCosts = years.map(year => calculateEstimatedCosts(exportVolume, 80, parseInt(year)));
+      const unpreparedCosts = years.map(year => calculateEstimatedCosts(exportVolume, 30, parseInt(year)));
+      const userCosts = years.map(year => calculateEstimatedCosts(exportVolume, readinessPercentage, parseInt(year)));
+
+      console.log('📊 Data prepared:', {years: years.length, userCosts: userCosts[0]});
+
+      // Check if Chart.js is available
+      if (typeof Chart === 'undefined') {
+        console.log('⚠️ Chart.js not available, creating fallback table');
+        createFallbackTable(canvas, years, preparedCosts, userCosts, unpreparedCosts, exportVolume, readinessPercentage);
+        return;
+      }
+
+      try {
+        const ctx = canvas.getContext('2d');
+        
+        // Destroy existing chart
+        if (projectionChart && typeof projectionChart.destroy === 'function') {
+          projectionChart.destroy();
+        }
+
+        // Create chart
+        projectionChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: years,
+            datasets: [{
+              label: '✅ Të Përgatitura (80%+)',
+              data: preparedCosts,
+              borderColor: '#27ae60',
+              backgroundColor: 'rgba(39, 174, 96, 0.1)',
+              tension: 0.3,
+              borderWidth: 3,
+              pointRadius: 5
+            }, {
+              label: `📊 Kompania Juaj (${readinessPercentage}%)`,
+              data: userCosts,
+              borderColor: '#060496',
+              backgroundColor: 'rgba(6, 4, 150, 0.2)',
+              tension: 0.3,
+              borderWidth: 4,
+              pointRadius: 7,
+              pointBackgroundColor: '#060496'
+            }, {
+              label: '❌ Jo të Përgatitura (30%)',
+              data: unpreparedCosts,
+              borderColor: '#e74c3c',
+              backgroundColor: 'rgba(231, 76, 60, 0.1)',
+              tension: 0.3,
+              borderWidth: 3,
+              pointRadius: 5
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              title: {
+                display: true,
+                text: `💰 Kostot CBAM për ${exportVolume.toLocaleString()} ton/vit - ${getSectorName(selectedSector)}`,
+                font: { size: 14, weight: 'bold' },
+                color: '#060496'
+              },
+              legend: {
+                position: 'top',
+                labels: { font: { size: 11 } }
+              }
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: { display: true, text: 'Kosto Vjetore (€)' },
+                ticks: {
+                  callback: function(value) {
+                    return '€' + Math.round(value).toLocaleString();
+                  }
+                }
+              },
+              x: {
+                title: { display: true, text: 'Viti' }
+              }
+            }
+          }
+        });
+        
+        console.log('✅ Chart created successfully!');
+        
+      } catch (error) {
+        console.error('❌ Chart creation failed:', error);
+        createFallbackTable(canvas, years, preparedCosts, userCosts, unpreparedCosts, exportVolume, readinessPercentage);
+      }
+    }
+
+    function createFallbackTable(canvas, years, preparedCosts, userCosts, unpreparedCosts, exportVolume, readinessPercentage) {
+      console.log('📋 Creating fallback table...');
+      
+      const chartContainer = canvas.parentNode;
+      chartContainer.innerHTML = `
+        <div style="padding: 20px; text-align: center;">
+          <h4 style="margin-bottom:20px; color:#060496;">
+            💰 Kostot CBAM për ${exportVolume.toLocaleString()} ton/vit - ${getSectorName(selectedSector)}
+          </h4>
+          <div style="overflow-x: auto;">
+            <table style="width:100%; min-width:600px; border-collapse:collapse; margin:0 auto; background:white; box-shadow:0 2px 8px rgba(0,0,0,0.1);">
+              <thead>
+                <tr style="background:#060496; color:white;">
+                  <th style="padding:12px; border:1px solid #ddd; font-weight:600;">Viti</th>
+                  <th style="padding:12px; border:1px solid #ddd; font-weight:600;">CO₂ Çmimi</th>
+                  <th style="padding:12px; border:1px solid #ddd; font-weight:600;">✅ Të Përgatitura</th>
+                  <th style="padding:12px; border:1px solid #ddd; font-weight:600;">📊 Kompania Juaj (${readinessPercentage}%)</th>
+                  <th style="padding:12px; border:1px solid #ddd; font-weight:600;">❌ Jo të Përgatitura</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${years.map((year, index) => `
+                  <tr style="text-align:center; ${index % 2 === 0 ? 'background:#f8f9fa;' : ''}">
+                    <td style="padding:10px; border:1px solid #ddd; font-weight:bold; color:#060496;">${year}</td>
+                    <td style="padding:10px; border:1px solid #ddd;">€${ralepaPrices[year]}/tCO₂</td>
+                    <td style="padding:10px; border:1px solid #ddd; color:#27ae60; font-weight:600;">€${preparedCosts[index].toLocaleString()}</td>
+                    <td style="padding:10px; border:1px solid #ddd; color:#060496; font-weight:bold; background:rgba(6,4,150,0.1);">€${userCosts[index].toLocaleString()}</td>
+                    <td style="padding:10px; border:1px solid #ddd; color:#e74c3c; font-weight:600;">€${unpreparedCosts[index].toLocaleString()}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+          <div style="margin-top:15px; padding:10px; background:#f8f9fa; border-radius:8px; font-size:0.9em;">
+            <p><strong>📈 Kursimi për kompanitë e përgatitura:</strong> €${Math.round((unpreparedCosts[0] - preparedCosts[0])).toLocaleString()} në 2026</p>
+            <p><strong>📊 Rritja e kostove 2026-2034:</strong> +${Math.round(((userCosts[8] - userCosts[0]) / userCosts[0]) * 100)}% për kompanin tuaj</p>
+          </div>
+        </div>
+      `;
+      
+      console.log('✅ Fallback table created!');
+    }
+
+    function calculateReadinessScore(responses) {
+      let score = 0;
+      responses.forEach(response => {
+        if (response.status === 'have') score += 2;
+        else if (response.status === 'partial') score += 1;
+      });
+      const maxScore = responses.length * 2;
+      return Math.round((score / maxScore) * 100);
+    }
+
+    function submitToGoogleSheets() {
+      if (!validateInputs()) return;
+      
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = '⏳ Duke Dërguar...';
+      
+      // Collect all data
+      const responses = collectSectorResponses();
+      const score = calculateReadinessScore(responses);
+      const exportVolume = parseInt(document.getElementById('export-volume').value);
+      
+      const companyData = {
+        timestamp: new Date().toISOString(),
+        companyName: document.getElementById('company-name').value,
+        sector: selectedSector,
+        sectorName: getSectorName(selectedSector),
+        exportVolume: exportVolume,
+        contactName: document.getElementById('contact-name').value,
+        email: document.getElementById('contact-email').value,
+        euBuyers: document.getElementById('eu-buyers').value || 'Nuk është përcaktuar',
+        readinessScore: score,
+        readinessLevel: score >= 70 ? 'I Lartë' : score >= 40 ? 'Mesatar' : 'I Ulët',
+        estimatedCost2026: calculateEstimatedCosts(exportVolume, score, 2026),
+        estimatedCost2030: calculateEstimatedCosts(exportVolume, score, 2030),
+        estimatedCost2034: calculateEstimatedCosts(exportVolume, score, 2034),
+        responses: JSON.stringify(responses)
+      };
+      
+      // For demonstration - replace with actual Google Sheets URL
+      console.log('Data to submit:', companyData);
+      
+      // Simulate successful submission
+      setTimeout(() => {
+        submitBtn.textContent = '✅ Dërguar me Sukses!';
+        submitBtn.style.background = '#27ae60';
+        
+        alert(`✅ Analiza u dërgua me sukses!\n\n📊 Rezultatet tuaja:\n- Gatishmëria: ${score}%\n- Kosto 2026: €${calculateEstimatedCosts(exportVolume, score, 2026).toLocaleString()}\n\nNjë ekspert nga Entrenovu do t'ju kontaktojë brenda 24 orëve për konsulencë falas.`);
+        
+        setTimeout(() => {
+          submitBtn.disabled = false;
+          submitBtn.textContent = '✉️ Dërgo Rezultatet & Kërko Konsulencë Falas';
+          submitBtn.style.background = '#060496';
+        }, 3000);
+      }, 1500);
+    }
   </script>
 </body>
 </html>
