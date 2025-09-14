@@ -1014,19 +1014,45 @@
       // For demonstration - replace with actual Google Sheets URL
       console.log('Data to submit:', companyData);
       
-      // Simulate successful submission
-      setTimeout(() => {
+      // Your Google Apps Script URL
+      const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby-VhRv-7oPC2b3HImELFmd_nYY6IZ6Eo8H3IWfpmIf88Z6CAY6RkFF9uZL5fBt7qkMlg/exec';
+
+      // Make the request to Google Apps Script
+      fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors', // Required for Google Apps Script
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(companyData)
+      })
+      .then(() => {
+        // Note: no-cors mode means we can't read the response
+        // So we assume success if no error is thrown
         submitBtn.textContent = '✅ Dërguar me Sukses!';
         submitBtn.style.background = '#27ae60';
-        
+
         alert(`✅ Analiza u dërgua me sukses!\n\n📊 Rezultatet tuaja:\n- Gatishmëria: ${score}%\n- Kosto 2026: €${calculateEstimatedCosts(exportVolume, score, 2026).toLocaleString()}\n\nNjë ekspert nga Entrenovu do t'ju kontaktojë brenda 24 orëve për konsulencë falas.`);
-        
+
         setTimeout(() => {
           submitBtn.disabled = false;
           submitBtn.textContent = '✉️ Dërgo Rezultatet & Kërko Konsulencë Falas';
           submitBtn.style.background = '#060496';
         }, 3000);
-      }, 1500);
+      })
+      .catch(error => {
+        console.error('Error submitting data:', error);
+        submitBtn.textContent = '❌ Gabim në Dërgim';
+        submitBtn.style.background = '#e74c3c';
+
+        alert('Ka ndodhur një gabim gjatë dërgimit. Ju lutem provoni përsëri.');
+
+        setTimeout(() => {
+          submitBtn.disabled = false;
+          submitBtn.textContent = '✉️ Dërgo Rezultatet & Kërko Konsulencë Falas';
+          submitBtn.style.background = '#060496';
+        }, 3000);
+      });
     }
   </script>
 </body>
