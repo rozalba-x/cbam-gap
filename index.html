@@ -995,6 +995,7 @@
       const exportVolume = parseInt(document.getElementById('export-volume').value);
       
       const companyData = {
+        language: 'al',
         timestamp: new Date().toISOString(),
         companyName: document.getElementById('company-name').value,
         sector: selectedSector,
@@ -1015,7 +1016,7 @@
       console.log('Data to submit:', companyData);
       
       // Your Google Apps Script URL
-      const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycby-VhRv-7oPC2b3HImELFmd_nYY6IZ6Eo8H3IWfpmIf88Z6CAY6RkFF9uZL5fBt7qkMlg/exec';
+      const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyTAIAVtW6nEIoyrffW2yk9XYH1Cw8UbpnlWA-MA-LUMe3VITZw2F-q9gltSu33oINSdw/exec';
 
       // Make the request to Google Apps Script
       fetch(GOOGLE_SCRIPT_URL, {
